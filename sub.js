@@ -8,11 +8,71 @@ console.log("debug");
 // list of all boIds (correspond to Bo pics)
 var boList = ["Bo_1", "Bo_2", "Bo_3", "Bo_4"];
 
+/* returns true if the src of image matches a regex for trump */
+function checkSRC(image)
+{
+  var trumpRegex = new RegExp("(trump)");
+  var lower = image.src.toLowerCase();
+  return lower.match(trumpRegex);
+}
+
 /* finds images of Trumps by TODO */
 function findTrumps()
 {
   var images = document.getElementsByTagName('img');
   console.log("trumping");
+  for (var i = 0, l = images.length; i < l; i++)
+  {
+    //TODO determine if pic is of Trump
+
+    // check alt
+
+    // check for Trump in src
+    var inSRC = checkSRC(images[i]);
+
+    // check data-mediaviewer-caption for Trump
+
+    // TODO stop replacing all images
+    if (inSRC)
+    {
+      console.log(inSRC);
+      replace(images[i]);
+    }
+
+  // TODO deal with links with background images?
+
+  }
+}
+
+function findTrumps1()
+{
+  var images = document.getElementsByTagName('img');
+  console.log("trumping1");
+  for (var i = 0, l = images.length; i < l; i++)
+  {
+    //TODO determine if pic is of Trump
+
+    // check alt
+
+    // check for Trump in src 
+
+    // check data-mediaviewer-caption for Trump
+
+    // TODO stop replacing all images
+    if (true)
+    {
+      replace(images[i]);
+    }
+
+  // TODO deal with links with background images?
+
+  }
+}
+
+function findTrumps2()
+{
+  var images = document.getElementsByTagName('img');
+  console.log("trumping2");
   for (var i = 0, l = images.length; i < l; i++)
   {
     //TODO determine if pic is of Trump
@@ -52,11 +112,26 @@ function replace(image)
   var urlRegex = new RegExp(expression);
   image.srcset = image.srcset.replace(urlRegex, newrl);
 
-  // TODO limit size
+  // TODO deal with data-original ????????????????
+  //if (image.getAttribute("data-original"))
+  if (false)
+  {
+    console.log(image.getAttribute("data-original"));
+    image.setAttribute("data-original", newrl);
+    console.log(image.getAttribute("data-original"));
+    console.log(image.class);
+
+  }
+
+  // TODO deal with data-hi-res-src and data-low-res-src or maybe just any tag that says src, can you regex serach tags???
+
+  // limit size
   image.maxwidth = image.width;
   image.width = image.width;
   image.maxheight = image.height;
   image.height = image.height;
+
+  // TODO deal with weird resizing on refresh
 
 
 }
@@ -74,6 +149,10 @@ function run()
   }
 }
 
+// TODO ADD ANOTHER SCRIPT TO RUN WHEN ICON IS CLICKED ~ MAYBE THAT CAN BE USED TO SOLVE LAZY LOAD AND PAGE RELOAD PROBLEMS
+
 findTrumps();
-window.addEventListener('load', findTrumps, false);
+//window.addEventListener('load', findTrumps1, false);
+//window.addEventListener("DOMContentLoaded", findTrumps2);
+//setTimeout(findTrumps2, 5000);
 run();
