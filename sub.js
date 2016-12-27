@@ -16,6 +16,13 @@ function checkSRC(image)
   return lower.match(trumpRegex);
 }
 
+function checkALT(image)
+{
+  var trumpRegex = new RegExp("(trump)");
+  var lower = image.alt.toLowerCase();
+  return lower.match(trumpRegex);
+}
+
 /* finds images of Trumps by TODO */
 function findTrumps()
 {
@@ -23,19 +30,24 @@ function findTrumps()
   console.log("trumping");
   for (var i = 0, l = images.length; i < l; i++)
   {
-    //TODO determine if pic is of Trump
 
-    // check alt
+    // TODO check enclosing div caption?
+
+    // TODO check enclosing link -- In Progress
+
+    // check alt text
+    var inAlt = checkALT(images[i]);
 
     // check for Trump in src
     var inSRC = checkSRC(images[i]);
 
-    // check data-mediaviewer-caption for Trump
+    // TODO check data-mediaviewer-caption for Trump
 
     // TODO stop replacing all images
-    if (inSRC)
+    if (inSRC || inAlt)
     {
       console.log(inSRC);
+      console.log(inAlt);
       replace(images[i]);
     }
 
@@ -124,6 +136,16 @@ function replace(image)
   }
 
   // TODO deal with data-hi-res-src and data-low-res-src or maybe just any tag that says src, can you regex serach tags???
+
+  // Code to find tag attributes containing src
+  /*for(var key in image)
+  {
+    var srcRegex = new RegExp("(src)");
+    if (image[key] && key.match(srcRegex))
+    {
+      console.log(key);
+    }
+  }*/
 
   // limit size
   image.maxwidth = image.width;
