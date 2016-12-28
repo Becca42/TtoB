@@ -8,6 +8,15 @@ console.log("debug");
 // list of all boIds (correspond to Bo pics)
 var boList = ["Bo_1", "Bo_2", "Bo_3", "Bo_4"];
 
+/* add JQuery to document */
+function addJQ()
+{
+  var script = document.createElement('script');
+  script.src = 'http://code.jquery.com/jquery-1.11.0.min.js';
+  script.type = 'text/javascript';
+  document.getElementsByTagName('head')[0].appendChild(script);
+}
+
 /* returns true if the src of image matches a regex for trump */
 function checkSRC(image)
 {
