@@ -32,6 +32,27 @@ function checkALT(image)
   return lower.match(trumpRegex);
 }
 
+/* checks enclosing link for trump */
+function checkLink(image)
+{
+  // add jquery 
+  addJQ();
+
+  // check link href
+  console.log($(image).closest('a'));
+  var href = $(image).closest('a').attr('href');
+  console.log("HREF: " + href);
+  if (!href)
+  {
+    return false;
+  }
+  var trumpRegex = new RegExp("(trump)");
+  var lower = href.toLowerCase();
+  var inHref = lower.match(trumpRegex);
+
+  return inHref;
+}
+
 /* finds images of Trumps by TODO */
 function findTrumps()
 {
@@ -41,8 +62,6 @@ function findTrumps()
   {
 
     // TODO check enclosing div caption?
-
-    // TODO check enclosing link -- In Progress
 
     // check alt text
     var inAlt = checkALT(images[i]);
@@ -55,13 +74,21 @@ function findTrumps()
     // TODO stop replacing all images
     if (inSRC || inAlt)
     {
-      console.log(inSRC);
-      console.log(inAlt);
       replace(images[i]);
     }
+    /* do more complicated searches if not in src or alt */
+    else
+    {
+        // TODO check enclosing link -- In Progress
+      var inLink = checkLink(images[i]);
 
-  // TODO deal with links with background images?
+      if (inLink)
+      {
+        replace(images[i]);
+      }
 
+    // TODO deal with links with background images?
+    }
   }
 }
 
