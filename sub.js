@@ -1,6 +1,11 @@
 /* Replaces recognized images of Trump with Bo Obama 
  *
  * Help from: https://blog.lateral.io/2016/04/create-chrome-extension-modify-websites-html-css/ 
+ *
+ * TODO:
+ *   - build js to run on icon click
+ *   - make small bo pic to use for icon
+ *   - 
  */
 
 
@@ -39,9 +44,7 @@ function checkLink(image)
   addJQ();
 
   // check link href
-  console.log($(image).closest('a'));
   var href = $(image).closest('a').attr('href');
-  console.log("HREF: " + href);
   if (!href)
   {
     return false;
@@ -53,7 +56,7 @@ function checkLink(image)
   return inHref;
 }
 
-/* finds images of Trumps by TODO */
+/* finds images of Trumps by checking src, alt, surrounding links, ... TODO */
 function findTrumps()
 {
   var images = document.getElementsByTagName('img');
@@ -61,7 +64,7 @@ function findTrumps()
   for (var i = 0, l = images.length; i < l; i++)
   {
 
-    // TODO check enclosing div caption?
+    // TODO check enclosing div caption? -- might be hard
 
     // check alt text
     var inAlt = checkALT(images[i]);
@@ -69,11 +72,12 @@ function findTrumps()
     // check for Trump in src
     var inSRC = checkSRC(images[i]);
 
-    // TODO check data-mediaviewer-caption for Trump
+    // TODO check data-mediaviewer-caption?
 
     // TODO stop replacing all images
     if (inSRC || inAlt)
     {
+      console.log(images[i].alt);
       replace(images[i]);
     }
     /* do more complicated searches if not in src or alt */
@@ -88,6 +92,8 @@ function findTrumps()
       }
 
     // TODO deal with links with background images?
+
+    // TODO deal with divs with background images?
     }
   }
 }
@@ -212,5 +218,5 @@ function run()
 findTrumps();
 //window.addEventListener('load', findTrumps1, false);
 //window.addEventListener("DOMContentLoaded", findTrumps2);
-//setTimeout(findTrumps2, 5000);
+setTimeout(findTrumps, 5000);
 run();
