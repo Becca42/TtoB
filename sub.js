@@ -3,7 +3,6 @@
  * Help from: https://blog.lateral.io/2016/04/create-chrome-extension-modify-websites-html-css/ 
  *
  * TODO:
- *   - make small bo pic to use for icon
  *   - fix problems like this page - http://www.npr.org/2016/12/28/507305600/trump-speaks-briefly-to-reporters-reversing-obama-criticism-and-touting-new-jobs
  *     (trump doesn't appear in src or alt, no surrounding link -- maybe look for closest <p></p>?)
  */
@@ -13,7 +12,7 @@ console.log("debug");
 // list of all boIds (correspond to Bo pics)
 var boList = ["Bo_1", "Bo_2", "Bo_3", "Bo_4"];
 
-/* add JQuery to document */
+/* add JQuery to document -- code from stackoverflow*/
 function addJQ()
 {
   var script = document.createElement('script');
@@ -74,7 +73,6 @@ function findTrumps()
 
     // TODO check data-mediaviewer-caption?
 
-    // TODO stop replacing all images
     if (inSRC || inAlt)
     {
       console.log(images[i].alt);
@@ -83,7 +81,7 @@ function findTrumps()
     /* do more complicated searches if not in src or alt */
     else
     {
-        // TODO check enclosing link -- In Progress
+      // check enclosing link (<a></a>)
       var inLink = checkLink(images[i]);
 
       if (inLink)
@@ -95,56 +93,6 @@ function findTrumps()
 
     // TODO deal with divs with background images?
     }
-  }
-}
-
-function findTrumps1()
-{
-  var images = document.getElementsByTagName('img');
-  console.log("trumping1");
-  for (var i = 0, l = images.length; i < l; i++)
-  {
-    //TODO determine if pic is of Trump
-
-    // check alt
-
-    // check for Trump in src 
-
-    // check data-mediaviewer-caption for Trump
-
-    // TODO stop replacing all images
-    if (true)
-    {
-      replace(images[i]);
-    }
-
-  // TODO deal with links with background images?
-
-  }
-}
-
-function findTrumps2()
-{
-  var images = document.getElementsByTagName('img');
-  console.log("trumping2");
-  for (var i = 0, l = images.length; i < l; i++)
-  {
-    //TODO determine if pic is of Trump
-
-    // check alt
-
-    // check for Trump in src 
-
-    // check data-mediaviewer-caption for Trump
-
-    // TODO stop replacing all images
-    if (true)
-    {
-      replace(images[i]);
-    }
-
-  // TODO deal with links with background images?
-
   }
 }
 
@@ -200,6 +148,7 @@ function replace(image)
 
 }
 
+// TODO -- this hot mess
 function run()
 {
   var a = false;
@@ -213,10 +162,8 @@ function run()
   }
 }
 
-// TODO ADD ANOTHER SCRIPT TO RUN WHEN ICON IS CLICKED ~ MAYBE THAT CAN BE USED TO SOLVE LAZY LOAD AND PAGE RELOAD PROBLEMS
-
 findTrumps();
-//window.addEventListener('load', findTrumps1, false);
-//window.addEventListener("DOMContentLoaded", findTrumps2);
+//window.addEventListener('load', findTrumps, false);
+//window.addEventListener("DOMContentLoaded", findTrumps);
 setTimeout(findTrumps, 5000);
 run();
