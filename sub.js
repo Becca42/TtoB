@@ -5,8 +5,10 @@
  * TODO:
  *   - fix problems like this page - http://www.npr.org/2016/12/28/507305600/trump-speaks-briefly-to-reporters-reversing-obama-criticism-and-touting-new-jobs
  *     (trump doesn't appear in src or alt, no surrounding link -- maybe look for closest <p></p>?)
- *   - deal with all tags containing src, e.g. data-src-2x
  *   - look at aspect ration of incoming image and have various replacement images to better match ratios
+ *   - add option on right click to convert image (if mouse is over an image) -- how would this work for divs and links with background images
+ *   - test on other sources like reddit and shit, need different tactics?
+ *   - deal with images inserted by script e.g. twitter widgets/embeds
  */
 
 
@@ -53,11 +55,12 @@ function checkLink(image)
   var trumpRegex = new RegExp("(trump)");
   var lower = href.toLowerCase();
   var inHref = lower.match(trumpRegex);
-
+  if (image.class == "Avatar") {console.log(href);}
   return inHref;
 }
 
-/* TODO -- code help from http://stackoverflow.com/questions/4952337/quickly-select-all-elements-with-css-background-image */
+/* checks attributes of given html tag for background-image, if exists checks for trump and replaces if trumpy
+ * code help from http://stackoverflow.com/questions/4952337/quickly-select-all-elements-with-css-background-image */
 function checkTagBackgrounds(tag)
 {
 
@@ -76,12 +79,38 @@ function checkTagBackgrounds(tag)
     {
       // TODO check for trumpishness
       var backImg = $(this).css('background-image');
-      console.log(backImg);
       var trumpRegex = new RegExp("(trump)");
       var lower = backImg.toLowerCase();
       return lower.match(trumpRegex);
     }
   }).css('background-image', newrl);
+}
+
+/* checks attributes of given image, attributes that contain 'src' in key name have values replaced with url newrl */
+function findReplaceSRC(image)
+{
+  // get replacement url
+  var chosenBo = boList[Math.floor(Math.random() * boList.length)];
+  var newrl = chrome.extension.getURL("/images/" + chosenBo + ".jpg");
+
+  // check all attributes
+  // code adapted from http://stackoverflow.com/questions/2048720/get-all-attributes-from-a-html-element-with-javascript-jquery
+  for (var att, i = 0, atts = image.attributes, n = atts.length; i < n; i++){
+      att = atts[i];
+      // check if attribute contains 'src'
+      var srcRegex = new RegExp("(src)");
+      var lower = att.nodeName.toLowerCase();
+      if (lower.match(srcRegex))
+      {
+        // if attribute includes src, replace value with newrl
+        image.setAttribute(att.nodeName, newrl);
+      }
+  }
+  // limit size
+  image.maxwidth = image.width;
+  image.width = image.width;
+  image.maxheight = image.height;
+  image.height = image.height;
 }
 
 /* finds images of Trumps by checking src, alt, surrounding links, ... TODO */
@@ -91,6 +120,8 @@ function findTrumps()
   console.log("trumping");
   for (var i = 0, l = images.length; i < l; i++)
   {
+    console.log(images[i]);
+
     var found = false;
 
     // TODO check enclosing div caption? -- might be hard
@@ -106,17 +137,16 @@ function findTrumps()
     if (inSRC || inAlt)
     {
       found = true;
-      replace(images[i]);
+      findReplaceSRC(images[i]);
     }
     // check enclosing link (<a></a>)
     else if (!found)
     {
-      
       var inLink = checkLink(images[i]);
-
       if (inLink)
       {
-        replace(images[i]);
+        //replace(images[i]);
+        findReplaceSRC(images[i]);
       }
 
     // TODO check closest <p></p> text
