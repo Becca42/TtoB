@@ -3,9 +3,9 @@
  * Help from: https://blog.lateral.io/2016/04/create-chrome-extension-modify-websites-html-css/ 
  *
  * TODO:
- *   - build js to run on icon click
  *   - make small bo pic to use for icon
- *   - 
+ *   - fix problems like this page - http://www.npr.org/2016/12/28/507305600/trump-speaks-briefly-to-reporters-reversing-obama-criticism-and-touting-new-jobs
+ *     (trump doesn't appear in src or alt, no surrounding link -- maybe look for closest <p></p>?)
  */
 
 
