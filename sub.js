@@ -5,6 +5,8 @@
  * TODO:
  *   - fix problems like this page - http://www.npr.org/2016/12/28/507305600/trump-speaks-briefly-to-reporters-reversing-obama-criticism-and-touting-new-jobs
  *     (trump doesn't appear in src or alt, no surrounding link -- maybe look for closest <p></p>?)
+ *   - deal with all tags containing src, e.g. data-src-2x
+ *   - look at aspect ration of incoming image and have various replacement images to better match ratios
  */
 
 
@@ -55,6 +57,33 @@ function checkLink(image)
   return inHref;
 }
 
+/* TODO -- code help from http://stackoverflow.com/questions/4952337/quickly-select-all-elements-with-css-background-image */
+function checkTagBackgrounds(tag)
+{
+
+  addJQ();
+  // get new url
+  var chosenBo = boList[Math.floor(Math.random() * boList.length)];
+  var newrl = chrome.extension.getURL("/images/" + chosenBo + ".jpg");
+  // reset links with background images
+  $(tag).filter(function() {
+    // check if background is set
+    if ($(this).css('background-image') === '')
+    {
+      return false;
+    }
+    else
+    {
+      // TODO check for trumpishness
+      var backImg = $(this).css('background-image');
+      console.log(backImg);
+      var trumpRegex = new RegExp("(trump)");
+      var lower = backImg.toLowerCase();
+      return lower.match(trumpRegex);
+    }
+  }).css('background-image', newrl);
+}
+
 /* finds images of Trumps by checking src, alt, surrounding links, ... TODO */
 function findTrumps()
 {
@@ -62,6 +91,7 @@ function findTrumps()
   console.log("trumping");
   for (var i = 0, l = images.length; i < l; i++)
   {
+    var found = false;
 
     // TODO check enclosing div caption? -- might be hard
 
@@ -75,13 +105,13 @@ function findTrumps()
 
     if (inSRC || inAlt)
     {
-      console.log(images[i].alt);
+      found = true;
       replace(images[i]);
     }
-    /* do more complicated searches if not in src or alt */
-    else
+    // check enclosing link (<a></a>)
+    else if (!found)
     {
-      // check enclosing link (<a></a>)
+      
       var inLink = checkLink(images[i]);
 
       if (inLink)
@@ -89,11 +119,13 @@ function findTrumps()
         replace(images[i]);
       }
 
-    // TODO deal with links with background images?
+    // TODO check closest <p></p> text
 
     // TODO deal with divs with background images?
     }
   }
+  // TODO deal with links with background images?
+  checkTagBackgrounds('a');
 }
 
 /* replaces image with and image of Bo Obama */
