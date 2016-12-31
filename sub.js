@@ -3,12 +3,20 @@
  * Help from: https://blog.lateral.io/2016/04/create-chrome-extension-modify-websites-html-css/ 
  *
  * TODO:
- *   - fix problems like this page - http://www.npr.org/2016/12/28/507305600/trump-speaks-briefly-to-reporters-reversing-obama-criticism-and-touting-new-jobs
- *     (trump doesn't appear in src or alt, no surrounding link -- maybe look for closest <p></p>?)
  *   - look at aspect ration of incoming image and have various replacement images to better match ratios
  *   - add option on right click to convert image (if mouse is over an image) -- how would this work for divs and links with background images
  *   - test on other sources like reddit and shit, need different tactics?
  *   - deal with images inserted by script e.g. twitter widgets/embeds
+ *   - check text enclosed by links <a> example trump .... </a>?
+ *   - store old src and have a restore option on right click??
+ *   - check <figcaption>?
+ *   - make some kind of options or info page
+ * 
+ * KNOWN "BUGS":
+ *   - misses images where text containing trump is 2+ levels up
+ *   - can't handle images inserted by scripts e.g. twitter avatar
+ *   - fix problems like this page - http://www.npr.org/2016/12/28/507305600/trump-speaks-briefly-to-reporters-reversing-obama-criticism-and-touting-new-jobs
+ *     (trump doesn't appear in src or alt, no surrounding link -- maybe look for closest <p></p>?)
  */
 
 
@@ -55,7 +63,6 @@ function checkLink(image)
   var trumpRegex = new RegExp("(trump)");
   var lower = href.toLowerCase();
   var inHref = lower.match(trumpRegex);
-  if (image.class == "Avatar") {console.log(href);}
   return inHref;
 }
 
@@ -68,6 +75,11 @@ function checkTagBackgrounds(tag)
   // get new url
   var chosenBo = boList[Math.floor(Math.random() * boList.length)];
   var newrl = chrome.extension.getURL("/images/" + chosenBo + ".jpg");
+  if (tag == 'div')
+  {
+    newrl = 'url("' + newrl + '"';
+  }
+
   // reset links with background images
   $(tag).filter(function() {
     // check if background is set
@@ -81,7 +93,17 @@ function checkTagBackgrounds(tag)
       var backImg = $(this).css('background-image');
       var trumpRegex = new RegExp("(trump)");
       var lower = backImg.toLowerCase();
-      return lower.match(trumpRegex);
+      if (lower.match(trumpRegex)) {console.log(backImg);}
+      if (tag == 'a' || lower.match(trumpRegex))
+      {
+        return lower.match(trumpRegex);
+      }
+      // check closest link for divs with background images that aren't trumpy
+      else
+      {
+        // check closest link
+        return checkLink($(this));
+      }
     }
   }).css('background-image', newrl);
 }
@@ -120,8 +142,6 @@ function findTrumps()
   console.log("trumping");
   for (var i = 0, l = images.length; i < l; i++)
   {
-    console.log(images[i]);
-
     var found = false;
 
     // TODO check enclosing div caption? -- might be hard
@@ -154,8 +174,11 @@ function findTrumps()
     // TODO deal with divs with background images?
     }
   }
-  // TODO deal with links with background images?
+  // deal with links with background images
   checkTagBackgrounds('a');
+
+  // deal with divs with background images
+  checkTagBackgrounds('div');
 }
 
 /* replaces image with and image of Bo Obama */
@@ -227,5 +250,5 @@ function run()
 findTrumps();
 //window.addEventListener('load', findTrumps, false);
 //window.addEventListener("DOMContentLoaded", findTrumps);
-setTimeout(findTrumps, 5000);
-run();
+//setTimeout(findTrumps, 5000);
+//run();
