@@ -17,7 +17,6 @@
  *   - fix problems like this page - http://www.npr.org/2016/12/28/507305600/trump-speaks-briefly-to-reporters-reversing-obama-criticism-and-touting-new-jobs
  *     (trump doesn't appear in src or alt, no surrounding link -- maybe look for closest <p></p>?)
  *   - pretty damn slow
- *   - weird background image loading thing (see nytimes top bar)
  */
 
 
@@ -104,13 +103,13 @@ function checkTagBackgrounds(tag)
   // reset links with background images
   $(tag).filter(function() {
     // check if background is set
-    if ($(this).css('background-image') === '')
+    if ($(this).css('background-image') === '' || $(this).css('background-image') == "none")
     {
       return false;
     }
     else
     {
-      // TODO check for trumpishness
+      // check for trumpishness
       var backImg = $(this).css('background-image');
       var trumpRegex = new RegExp("(trump)");
       var lower = backImg.toLowerCase();
