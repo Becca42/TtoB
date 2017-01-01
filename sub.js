@@ -9,7 +9,6 @@
  *   - deal with images inserted by script e.g. twitter widgets/embeds
  *   - check text enclosed by links <a> example trump .... </a>?
  *   - store old src and have a restore option on right click??
- *   - check <figcaption>?
  *   - make some kind of options or info page
  * 
  * KNOWN "BUGS":
@@ -17,6 +16,8 @@
  *   - can't handle images inserted by scripts e.g. twitter avatar
  *   - fix problems like this page - http://www.npr.org/2016/12/28/507305600/trump-speaks-briefly-to-reporters-reversing-obama-criticism-and-touting-new-jobs
  *     (trump doesn't appear in src or alt, no surrounding link -- maybe look for closest <p></p>?)
+ *   - pretty damn slow
+ *   - weird background image loading thing (see nytimes top bar)
  */
 
 
@@ -64,6 +65,26 @@ function checkLink(image)
   var lower = href.toLowerCase();
   var inHref = lower.match(trumpRegex);
   return inHref;
+}
+
+/* checks html inside closest figcaption tag for trump, returns true if trumpy caption, false otherwise*/
+function checkFigCap(image)
+{
+  addJQ();
+
+  // get text of closest figcaption
+  var parent = $(image).closest('figure');
+  var cap = parent.find('figcaption');
+  var inner = cap.text();
+  if (!inner)
+  {
+    return false;
+  }
+  // check trumpiness
+  var trumpRegex = new RegExp("(trump)");
+  var lower = inner.toLowerCase();
+  var inFigCap = lower.match(trumpRegex);
+  return inFigCap;
 }
 
 /* checks attributes of given html tag for background-image, if exists checks for trump and replaces if trumpy
@@ -160,18 +181,26 @@ function findTrumps()
       findReplaceSRC(images[i]);
     }
     // check enclosing link (<a></a>)
-    else if (!found)
+    if (!found)
     {
       var inLink = checkLink(images[i]);
       if (inLink)
       {
         //replace(images[i]);
         findReplaceSRC(images[i]);
+        found = true;
       }
-
-    // TODO check closest <p></p> text
-
-    // TODO deal with divs with background images?
+    }
+    // check figure caption tag
+    if (!found)
+    {
+      var inFigCap = checkFigCap(images[i]);
+      if (inFigCap)
+      {
+        console.log("down below");
+        findReplaceSRC(images[i]);
+        found = true;
+      }
     }
   }
   // deal with links with background images
