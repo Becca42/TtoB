@@ -132,6 +132,7 @@ function findReplaceSRC(image)
   // get replacement url
   var chosenBo = boList[Math.floor(Math.random() * boList.length)];
   var newrl = chrome.extension.getURL("/images/" + chosenBo + ".jpg");
+  var oldrl = image.src;
 
   // check all attributes
   // code adapted from http://stackoverflow.com/questions/2048720/get-all-attributes-from-a-html-element-with-javascript-jquery
@@ -151,6 +152,9 @@ function findReplaceSRC(image)
   image.width = image.width;
   image.maxheight = image.height;
   image.height = image.height;
+
+  // store old src
+  image.setAttribute("old-src", oldrl);
 }
 
 /* finds images of Trumps by checking src, alt, surrounding links, ... TODO */
@@ -259,79 +263,55 @@ function replace(image)
 
 /* Context Menu Code :: help from http://stackoverflow.com/questions/14452777/is-that-possible-calling-content-script-method-by-context-menu-item-in-chrome-ex */
 
+/* Replaces src of clicked image and store old src */
 function replaceSrcContext(i)
 {
-  //addJQ();
   var newrl = chrome.extension.getURL("/images/Bo_4.jpg");
-  console.log("replaceSrcContext is invoked");
-  console.log(i);
-  // help with jquery selector from http://stackoverflow.com/questions/835378/jquery-how-to-find-an-image-by-its-src
-  //var img = $('document').find("img [src$='" + i.srcUrl + "']"); // might not work b/c full not relative path
-  var allImages = document.getElementsByTagName('img');
-  for (var j = allImages.length - 1; j >= 0; j--)
-  {
-    var img = allImages[j];
-    if (img.src == i.srcUrl)
+  // get old src
+  var oldrl = i.srcUrl;
+  // replace src
+  clickedEl.src = newrl;
+  // TODO deal with other src tags
+  // check other src options on image
+  for (var att, k = 0, atts = clickedEl.attributes, n = atts.length; k < n; k++){
+    att = atts[k];
+    // check if attribute contains 'src'
+    var srcRegex = new RegExp("(src)");
+    var lower = att.nodeName.toLowerCase();
+    // if attribute contains src
+    if (lower.match(srcRegex))
     {
-      console.log("first: " + img.src);
-
-      img.src = newrl;
-      img.width = img.width;
-      img.height = img.height;
-      console.log(new Date().getTime());
-      console.log("second: " + img.src);
-
-      break; // found, so we're done
-    }
-    else
-    {
-      // TODO check other src options on image
-      for (var att, k = 0, atts = img.attributes, n = atts.length; k < n; k++){
-      att = atts[k];
-      // check if attribute contains 'src'
-      var srcRegex = new RegExp("(src)");
-      var lower = att.nodeName.toLowerCase();
-      if (lower.match(srcRegex))
-      {
-        console.log("found src tag");
-        // if attribute includes src, check att value with srcUrl
-        console.log(att.nodeValue);
-        // if srcset
-        if (lower == "srcset")
+      console.log("found src tag");
+      if (lower == "srcset")
         {
           // get urls from srcset value
           var expression = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?/gi;
           var urlRegex = new RegExp(expression);
-          var matches = att.nodeValue.match(urlRegex, newrl);
-          // check each url
-          for (var x = matches.length - 1; x >= 0; x--)
-          {
-            // replace url in image if matches clicked on img src
-            if (matches[x] == i.srcUrl)
-            {
-              img.setAttribute(att.nodeName, newrl);
-              img.src = newrl;
-              img.width = img.width;
-              img.height = img.height;
-              console.log(new Date().getTime());
-              break;
-            }
-          }
+          att.nodeValue.replace(urlRegex, newrl);
         }
-        else if (att.nodeValue == i.srcUrl)
+        else
         {
-          img.setAttribute(att.nodeName, newrl);
-          img.src = newrl;
-          img.width = img.width;
-          img.height = img.height;
-          console.log(new Date().getTime());
-          break;
+          clickedEl.setAttribute(att.nodeName, newrl);
         }
-      }
     }
   }
+  // limit size
+  clickedEl.maxwidth = clickedEl.width;
+  clickedEl.width = clickedEl.width;
+  clickedEl.maxheight = clickedEl.height;
+  clickedEl.height = clickedEl.height;
+
+  // store old src
+  clickedEl.setAttribute("old-src", oldrl);
 }
-}
+
+/* Mousedown listener to use for identify context menu update images */
+document.addEventListener("mousedown", function(event){
+    //right click
+    if(event.button == 2) {
+        clickedEl = event.target;
+    }
+}, true);
 
 /* TODO */
 function revertImage(i)
@@ -339,14 +319,26 @@ function revertImage(i)
   //TODO
   console.log("reverting");
 
-  // TODO send alert if image isn't trumpy?
+  // get clicked image
+  console.log(clickedEl);
+
+  // chekc if image has been replaced yet
+  if (clickedEl.getAttribute('old-src') === "" || clickedEl.getAttribute('old-src') == 'none')
+  {
+    console.log("hasn't been replaced");
+  }
+  else
+  {
+    // get old src
+    var oldrl = clickedEl.getAttribute('old-src');
+    // reset src
+    clickedEl.setAttribute('src', oldrl);
+    // delete old-src?
+    clickedEl.setAttribute('old-src', "none");
+  }
 }
 
-
-var showAnotherInfo = function () {
-    console.log("Show Another Info");
-};
-
+/* (context menu) message listener */
 chrome.extension.onMessage.addListener(function (message, sender, callback) {
     if (message.functiontoInvoke == "replaceSrcContext") {
         replaceSrcContext(message.info);
