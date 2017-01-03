@@ -3,21 +3,7 @@ chrome.browserAction.onClicked.addListener(function(tab) {
     chrome.tabs.executeScript(null, {file: "sub.js"});
 });
 
-/* Code from https://developer.chrome.com/extensions/samples#search:contextmenus
- * Returns a handler which will open a new window when activated.
- */
-function getClickHandler() {
-  return function(info, tab) {
-
-    // The srcUrl property is only available for image elements.
-    var url = 'info.html#' + info.srcUrl;
-
-    // Create a new window to the info page.
-    chrome.windows.create({ url: url, width: 520, height: 660 });
-  };
-}
-
-function imageOnClick(info, tab) {
+function deTrump(info, tab) {
     console.log("item " + info.menuItemId + " was clicked");
     console.log("info: " + JSON.stringify(info));
     console.log("tab: " + JSON.stringify(tab));
@@ -27,29 +13,44 @@ function imageOnClick(info, tab) {
         "active": true,
         "currentWindow": true
     }, function (tabs) {
-		if (info.checked)
-		{
-			chrome.tabs.sendMessage(tabs[0].id, {
-				"functiontoInvoke": "replaceSrcContext",
-				"info" : info,
-			});
-		}
-		else
-		{
-			chrome.tabs.sendMessage(tabs[0].id, {
-			"functiontoInvoke": "revertImage",
+		chrome.tabs.sendMessage(tabs[0].id, {
+			"functiontoInvoke": "replaceSrcContext",
 			"info" : info,
-			});
-		}
+		});
     });
 }
 
-/**
- * Create a context menu which will only show up for images.
+function revertImage(info, tab)
+{
+	chrome.tabs.query({
+        "active": true,
+        "currentWindow": true
+    }, function (tabs) {
+		chrome.tabs.sendMessage(tabs[0].id, {
+			"functiontoInvoke": "revertImage",
+			"info" : info,
+		});
+	});
+}
+
+/* Create a context menu with "de-trump" and "revert" options
  */
-chrome.contextMenus.create({
-  "title" : "De-Trump Image",
-  "type" : "checkbox",
-  "contexts" : ["image"],
-  "onclick" : imageOnClick
+var parent1 = chrome.contextMenus.create({
+	"title": "Change Image",
+	"type": "normal",
+	"contexts": ["image"]
+});
+var child1 = chrome.contextMenus.create({
+	"title": "De-Trump",
+	"parentId": parent1,
+	"type": "normal",
+	"contexts": ["image"],
+	"onclick": deTrump
+});
+var child2 = chrome.contextMenus.create({
+	"title": "Revert Image",
+	"parentId": parent1,
+	"type": "normal",
+	"contexts": ["image"],
+	"onclick": revertImage
 });

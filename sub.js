@@ -7,7 +7,7 @@
  *   - add option on right click to convert image for divs and links with background images
  *   - deal with images inserted by script e.g. twitter widgets/embeds
  *   - check text enclosed by links <a> example trump .... </a>?
- *   - store old src and have a restore option on right click -- In Progress
+ *   - store old src and have a restore option on right click -- In Progress (need to have parent with child components to have 2+ options)
  *   - make some kind of options or info page
  * 
  * KNOWN "BUGS":
