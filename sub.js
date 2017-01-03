@@ -7,7 +7,7 @@
  *   - add option on right click to convert image for divs and links with background images
  *   - deal with images inserted by script e.g. twitter widgets/embeds
  *   - check text enclosed by links <a> example trump .... </a>?
- *   - store old src and have a restore option on right click??
+ *   - store old src and have a restore option on right click -- In Progress
  *   - make some kind of options or info page
  * 
  * KNOWN "BUGS":
@@ -333,6 +333,15 @@ function replaceSrcContext(i)
 }
 }
 
+/* TODO */
+function revertImage(i)
+{
+  //TODO
+  console.log("reverting");
+
+  // TODO send alert if image isn't trumpy?
+}
+
 
 var showAnotherInfo = function () {
     console.log("Show Another Info");
@@ -342,8 +351,8 @@ chrome.extension.onMessage.addListener(function (message, sender, callback) {
     if (message.functiontoInvoke == "replaceSrcContext") {
         replaceSrcContext(message.info);
     }
-    if (message.functiontoInvoke == "showAnotherInfo") {
-        showAnotherInfo();
+    if (message.functiontoInvoke == "revertImage") {
+        revertImage(message.info);
     }
 });
 

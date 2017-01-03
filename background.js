@@ -27,10 +27,20 @@ function imageOnClick(info, tab) {
         "active": true,
         "currentWindow": true
     }, function (tabs) {
-        chrome.tabs.sendMessage(tabs[0].id, {
-            "functiontoInvoke": "replaceSrcContext",
-            "info" : info,
-        });
+		if (info.checked)
+		{
+			chrome.tabs.sendMessage(tabs[0].id, {
+				"functiontoInvoke": "replaceSrcContext",
+				"info" : info,
+			});
+		}
+		else
+		{
+			chrome.tabs.sendMessage(tabs[0].id, {
+			"functiontoInvoke": "revertImage",
+			"info" : info,
+			});
+		}
     });
 }
 
@@ -39,7 +49,7 @@ function imageOnClick(info, tab) {
  */
 chrome.contextMenus.create({
   "title" : "De-Trump Image",
-  "type" : "normal",
+  "type" : "checkbox",
   "contexts" : ["image"],
   "onclick" : imageOnClick
 });
