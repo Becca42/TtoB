@@ -13,7 +13,7 @@
  *   - can't handle images inserted by scripts e.g. twitter avatar
  *   - fix problems like this page - http://www.npr.org/2016/12/28/507305600/trump-speaks-briefly-to-reporters-reversing-obama-criticism-and-touting-new-jobs
  *     (trump doesn't appear in src or alt, no surrounding link -- maybe look for closest <p></p>?)
- *   - clicking 'de-trump' twice break old-src thing because old-src gets set to bo imgae and thus pic can never be reverted
+ *   - clicking 'de-trump' twice break old-source thing because old-source gets set to bo imgae and thus pic can never be reverted
  */
 
 
@@ -153,7 +153,7 @@ function findReplaceSRC(image)
   image.height = image.height;
 
   // store old src
-  image.setAttribute("old-src", oldrl);
+  image.setAttribute("old-source", oldrl);
 }
 
 /* finds images of Trumps by checking src, alt, surrounding links, ... TODO */
@@ -300,8 +300,13 @@ function replaceSrcContext(i)
   clickedEl.maxheight = clickedEl.height;
   clickedEl.height = clickedEl.height;
 
-  // store old src
-  clickedEl.setAttribute("old-src", oldrl);
+  // store old src if not already stored
+  console.log(clickedEl.getAttribute("old-source"));
+  if (!clickedEl.getAttribute("old-source") || (clickedEl.getAttribute("old-source") == "none"))
+  {
+    console.log('replacing');
+    clickedEl.setAttribute("old-source", oldrl);
+  }
 }
 
 /* Mousedown listener to use for identify context menu update images 
@@ -322,14 +327,14 @@ function revertImage(i)
   console.log(clickedEl);
 
   // chekc if image has been replaced yet
-  if (clickedEl.getAttribute('old-src') === "" || clickedEl.getAttribute('old-src') == 'none')
+  if (clickedEl.getAttribute('old-source') === "" || clickedEl.getAttribute('old-source') == 'none' || !clickedEl.getAttribute("old-source"))
   {
     console.log("hasn't been replaced");
   }
   else
   {
     // get old src
-    var oldrl = clickedEl.getAttribute('old-src');
+    var oldrl = clickedEl.getAttribute('old-source');
     // reset src
     clickedEl.setAttribute('src', oldrl);
     // TODO deal with other src tags
@@ -357,8 +362,8 @@ function revertImage(i)
           }
       }
     }
-    // delete old-src?
-    clickedEl.setAttribute('old-src', "none");
+    // delete old-source?
+    clickedEl.setAttribute('old-source', "none");
   }
 }
 
