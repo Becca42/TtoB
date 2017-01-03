@@ -8,7 +8,7 @@
  *   - test on other sources like reddit and shit, need different tactics?
  *   - deal with images inserted by script e.g. twitter widgets/embeds
  *   - check text enclosed by links <a> example trump .... </a>?
- *   - store old src and have a restore option on right click??
+ *   - store old src and have a restore option on right click?? -- In Progress
  *   - make some kind of options or info page
  * 
  * KNOWN "BUGS":
@@ -164,7 +164,7 @@ function findTrumps()
   {
     var found = false;
 
-    // TODO check enclosing div caption? -- might be hard
+    // TODO check enclosing div caption?
 
     // check alt text
     var inAlt = checkALT(images[i]);
@@ -260,6 +260,104 @@ function replace(image)
 
 
 }
+
+/* Context Menu Code :: help from http://stackoverflow.com/questions/14452777/is-that-possible-calling-content-script-method-by-context-menu-item-in-chrome-ex */
+
+function replaceSrcContext(i)
+{
+    //addJQ();
+    var newrl = chrome.extension.getURL("/images/Bo_4.jpg");
+    console.log("replaceSrcContext is invoked");
+    console.log(i);
+    // help with jquery selector from http://stackoverflow.com/questions/835378/jquery-how-to-find-an-image-by-its-src
+    //var img = $('document').find("img [src$='" + i.srcUrl + "']"); // might not work b/c full not relative path
+    var allImages = document.getElementsByTagName('img');
+    for (var j = allImages.length - 1; j >= 0; j--)
+    {
+      var img = allImages[j];
+      if (img.src == i.srcUrl)
+      {
+        console.log("first: " + img.src);
+
+        img.src = newrl;
+        img.width = img.width;
+        img.height = img.height;
+        console.log("second: " + img.src);
+
+        break; // found, so we're done
+      }
+      else
+      {
+        // TODO check other src options on image
+        for (var att, k = 0, atts = img.attributes, n = atts.length; k < n; k++){
+        att = atts[k];
+        // check if attribute contains 'src'
+        var srcRegex = new RegExp("(src)");
+        var lower = att.nodeName.toLowerCase();
+        if (lower.match(srcRegex))
+        {
+          console.log("found src tag");
+          // if attribute includes src, check att value with srcUrl
+          console.log(att.nodeValue);
+          // if srcset
+          if (lower == "srcset")
+          {
+            // get urls from srcset value
+            var expression = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?/gi;
+            var urlRegex = new RegExp(expression);
+            var matches = att.nodeValue.match(urlRegex, newrl);
+            // check each url
+            for (var x = matches.length - 1; x >= 0; x--) {
+              // replace url in image if matches clicked on img src
+              if (matches[x] == i.srcUrl)
+              {
+                img.setAttribute(att.nodeName, newrl);
+                img.src = newrl;
+                img.width = img.width;
+                img.height = img.height;
+                break;
+              }
+            }
+          }
+          else if (att.nodeValue == i.srcUrl)
+          {
+            img.setAttribute(att.nodeName, newrl);
+            img.src = newrl;
+            img.width = img.width;
+            img.height = img.height;
+            break;
+          }
+       
+        }
+      }
+    }
+  }
+
+    /*if (false)
+    {
+      console.log(img);
+      console.log(debug);
+      console.log("first: " + img.attr('src'));
+
+      img.attr('src', chrome.extension.getURL("/images/Bo_3.jpg"));
+      img.css('width', img.attr('width'));
+      img.css('height', img.attr('height'));
+      console.log("second: " + img.attr('src'));
+    }*/
+}
+
+var showAnotherInfo = function () {
+    console.log("Show Another Info");
+};
+
+chrome.extension.onMessage.addListener(function (message, sender, callback) {
+    if (message.functiontoInvoke == "replaceSrcContext") {
+        replaceSrcContext(message.info);
+    }
+    if (message.functiontoInvoke == "showAnotherInfo") {
+        showAnotherInfo();
+    }
+});
 
 // TODO -- this hot mess
 function run()
