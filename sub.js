@@ -7,14 +7,13 @@
  *   - add option on right click to convert image for divs and links with background images
  *   - deal with images inserted by script e.g. twitter widgets/embeds
  *   - check text enclosed by links <a> example trump .... </a>?
- *   - store old src and have a restore option on right click -- In Progress (need to have parent with child components to have 2+ options)
  *   - make some kind of options or info page
  * 
  * KNOWN "BUGS":
  *   - can't handle images inserted by scripts e.g. twitter avatar
  *   - fix problems like this page - http://www.npr.org/2016/12/28/507305600/trump-speaks-briefly-to-reporters-reversing-obama-criticism-and-touting-new-jobs
  *     (trump doesn't appear in src or alt, no surrounding link -- maybe look for closest <p></p>?)
- *   - context menu replace doesn't always show up (src is replaced, image appear the same on page) -- mult. src options is probably the cause
+ *   - clicking 'de-trump' twice break old-src thing because old-src gets set to bo imgae and thus pic can never be reverted
  */
 
 
@@ -211,7 +210,7 @@ function findTrumps()
   checkTagBackgrounds('div');
 }
 
-/* replaces image with and image of Bo Obama */
+/* replaces image with and image of Bo Obama -- not used */
 function replace(image)
 {
   // choose random Bo
@@ -266,12 +265,11 @@ function replace(image)
 /* Replaces src of clicked image and store old src */
 function replaceSrcContext(i)
 {
-  var newrl = chrome.extension.getURL("/images/Bo_4.jpg");
+  var newrl = chrome.extension.getURL("/images/Bo_4.jpg") + "?" + new Date().getTime();
   // get old src
   var oldrl = i.srcUrl;
   // replace src
   clickedEl.src = newrl;
-  // TODO deal with other src tags
   // check other src options on image
   for (var att, k = 0, atts = clickedEl.attributes, n = atts.length; k < n; k++){
     att = atts[k];
@@ -284,10 +282,11 @@ function replaceSrcContext(i)
       console.log("found src tag");
       if (lower == "srcset")
         {
+          console.log('srcset');
           // get urls from srcset value
           var expression = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?/gi;
           var urlRegex = new RegExp(expression);
-          att.nodeValue.replace(urlRegex, newrl);
+          att.nodeValue = att.nodeValue.replace(urlRegex, newrl);
         }
         else
         {
@@ -305,7 +304,8 @@ function replaceSrcContext(i)
   clickedEl.setAttribute("old-src", oldrl);
 }
 
-/* Mousedown listener to use for identify context menu update images */
+/* Mousedown listener to use for identify context menu update images 
+ * from: http://stackoverflow.com/questions/7703697/how-to-retrieve-the-element-where-a-contextmenu-has-been-executed */
 document.addEventListener("mousedown", function(event){
     //right click
     if(event.button == 2) {
@@ -316,7 +316,6 @@ document.addEventListener("mousedown", function(event){
 /* TODO */
 function revertImage(i)
 {
-  //TODO
   console.log("reverting");
 
   // get clicked image
@@ -333,6 +332,31 @@ function revertImage(i)
     var oldrl = clickedEl.getAttribute('old-src');
     // reset src
     clickedEl.setAttribute('src', oldrl);
+    // TODO deal with other src tags
+    // check other src options on image
+    for (var att, k = 0, atts = clickedEl.attributes, n = atts.length; k < n; k++){
+      att = atts[k];
+      // check if attribute contains 'src'
+      var srcRegex = new RegExp("(src)");
+      var lower = att.nodeName.toLowerCase();
+      // if attribute contains src
+      if (lower.match(srcRegex))
+      {
+        console.log("found src tag");
+        if (lower == "srcset")
+          {
+            console.log('srcset');
+            // get urls from srcset value
+            var expression = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?/gi;
+            var urlRegex = new RegExp(expression);
+            att.nodeValue = att.nodeValue.replace(urlRegex, oldrl);
+          }
+          else
+          {
+            clickedEl.setAttribute(att.nodeName, oldrl);
+          }
+      }
+    }
     // delete old-src?
     clickedEl.setAttribute('old-src', "none");
   }
