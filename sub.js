@@ -13,7 +13,6 @@
  *   - can't handle images inserted by scripts e.g. twitter avatar
  *   - fix problems like this page - http://www.npr.org/2016/12/28/507305600/trump-speaks-briefly-to-reporters-reversing-obama-criticism-and-touting-new-jobs
  *     (trump doesn't appear in src or alt, no surrounding link -- maybe look for closest <p></p>?)
- *   - clicking 'de-trump' twice break old-source thing because old-source gets set to bo imgae and thus pic can never be reverted
  */
 
 
@@ -142,6 +141,12 @@ function findReplaceSRC(image)
       var lower = att.nodeName.toLowerCase();
       if (lower.match(srcRegex))
       {
+        // if attribute contains "hi", use for old-source
+        var hiRegex = new RegExp("(hi)");
+        if (lower.match(hiRegex) && (image.getAttribute("old-source") == "none" || !image.getAttribute("old-source")))
+        {
+          image.setAttribute("old-source", att.nodeValue);
+        }
         // if attribute includes src, replace value with newrl
         image.setAttribute(att.nodeName, newrl);
       }
@@ -153,7 +158,10 @@ function findReplaceSRC(image)
   image.height = image.height;
 
   // store old src
-  image.setAttribute("old-source", oldrl);
+  if (image.getAttribute("old-source") == "none" || !image.getAttribute("old-source"))
+  {
+    image.setAttribute("old-source", oldrl);
+  }
 }
 
 /* finds images of Trumps by checking src, alt, surrounding links, ... TODO */

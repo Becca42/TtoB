@@ -41,14 +41,14 @@ var parent1 = chrome.contextMenus.create({
 	"contexts": ["image"]
 });
 var child1 = chrome.contextMenus.create({
-	"title": "De-Trump",
+	"title": "Replace Image",
 	"parentId": parent1,
 	"type": "normal",
 	"contexts": ["image"],
 	"onclick": deTrump
 });
 var child2 = chrome.contextMenus.create({
-	"title": "Revert Image",
+	"title": "Restore Original Image",
 	"parentId": parent1,
 	"type": "normal",
 	"contexts": ["image"],
