@@ -21,6 +21,9 @@ console.log("debug");
 // list of all boIds (correspond to Bo pics)
 var boList = ["Bo_1", "Bo_2", "Bo_3", "Bo_4", "Bo_5", "Bo_6", "Bo_7", "Bo_8"];
 
+// list of aspect ratios used
+var ratioList = ["4x3", "3x2", "16x9", "5x3", "5x4", "1x1"];
+
 /* add JQuery to document -- code from stackoverflow*/
 function addJQ()
 {
@@ -125,18 +128,72 @@ function checkTagBackgrounds(tag)
   }).css('background-image', newrl);
 }
 
+/* returns closest aspect ratio from global ratioList to aspect */
+function getClosestRatio(aspect)
+{
+  // 4/3 = 1.33; 3/2 = 1.5; 16/9 = 1.78; 5/3 = 1.67; 5/4 = 1.25; 1/1 = 1; 9/16 = 0.5625; 4/6 = 0.666; 8/10 = 0.8
+  var epsilon = 0.0001;
+
+  if (Math.abs(1 - aspect) < epsilon)
+  {
+    return "1x1";
+  }
+  else if (Math.abs(1.25 - aspect) < epsilon)
+  {
+    return "5x4";
+  }
+  else if (Math.abs(1.33 - aspect) < epsilon)
+  {
+    return "4x3";
+  }
+  else if (Math.abs(1.5 - aspect) < epsilon)
+  {
+    return "3x2";
+  }
+  else if (Math.abs(1.67 - aspect) < epsilon)
+  {
+    return "5x3";
+  }
+  else if (Math.abs(1.78 - aspect) < epsilon)
+  {
+    return "16x9";
+  }
+  else if (Math.abs(0.5625 - aspect) < epsilon)
+  {
+    return "9x16";
+  }
+  else if (Math.abs(0.667 - aspect) < epsilon)
+  {
+    return "4x6";
+  }
+  else if (Math.abs(0.8 - aspect) < epsilon)
+  {
+    return "8x10";
+  }
+  else
+  {
+    return "4x3";
+  }
+}
+
 /* checks attributes of given image, attributes that contain 'src' in key name have values replaced with url newrl */
 function findReplaceSRC(image)
 {
-  // get replacement url
-  var chosenBo = boList[Math.floor(Math.random() * boList.length)];
-  var newrl = chrome.extension.getURL("/images/" + chosenBo + ".jpg");
+  
   var oldrl = image.src;
   var oldWidth = image.width;
   var oldHeight = image.height;
+  // get aspect ratio
+  var aspect = oldWidth/oldHeight;
 
-  console.log("image: "+oldrl);
-  console.log("width: "+image.width);
+  var ratio = getClosestRatio(aspect);
+
+  // get replacement url
+  var chosenBo = boList[Math.floor(Math.random() * boList.length)];
+  var newrl = chrome.extension.getURL("/images/" + chosenBo + "/" + ratio + ".jpg");
+
+  console.log("image: " + oldrl);
+  console.log("width: " + image.width);
 
   if (image.width === 0 && image.height === 0)
   {
