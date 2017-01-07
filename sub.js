@@ -13,6 +13,7 @@
  *   - can't handle images inserted by scripts e.g. twitter avatar
  *   - fix problems like this page - http://www.npr.org/2016/12/28/507305600/trump-speaks-briefly-to-reporters-reversing-obama-criticism-and-touting-new-jobs
  *     (trump doesn't appear in src or alt, no surrounding link -- maybe look for closest <p></p>?)
+ *   - repaced image when reloaded (after returning via 'back' from clicked through page) is set to origianl (large) image size instead of intended size on page
  */
 
 
@@ -131,11 +132,24 @@ function findReplaceSRC(image)
   var chosenBo = boList[Math.floor(Math.random() * boList.length)];
   var newrl = chrome.extension.getURL("/images/" + chosenBo + ".jpg");
   var oldrl = image.src;
+  var oldWidth = image.width;
+  var oldHeight = image.height;
+
+  console.log("image: "+oldrl);
+  console.log("width: "+image.width);
+
+  if (image.width === 0 && image.height === 0)
+  {
+    console.log("no h/w");
+    return;
+  }
 
   // check all attributes
   // code adapted from http://stackoverflow.com/questions/2048720/get-all-attributes-from-a-html-element-with-javascript-jquery
   for (var att, i = 0, atts = image.attributes, n = atts.length; i < n; i++){
       att = atts[i];
+
+      console.log(att.nodeName + ": " + att.nodeValue);
       // check if attribute contains 'src'
       var srcRegex = new RegExp("(src)");
       var lower = att.nodeName.toLowerCase();
@@ -151,11 +165,16 @@ function findReplaceSRC(image)
         image.setAttribute(att.nodeName, newrl);
       }
   }
+
+  
   // limit size
-  image.maxwidth = image.width;
-  image.width = image.width;
-  image.maxheight = image.height;
-  image.height = image.height;
+  image.setAttribute('maxwidth', oldWidth);
+  image.setAttribute('width', oldWidth);
+  image.setAttribute('maxheight', oldHeight);
+  image.setAttribute('height', oldHeight);
+
+  console.log("width reset: "+image.width);
+
 
   // store old src
   if (image.getAttribute("old-source") == "none" || !image.getAttribute("old-source"))
@@ -260,10 +279,10 @@ function replace(image)
   }*/
 
   // limit size
-  image.maxwidth = image.width;
-  image.width = image.width;
-  image.maxheight = image.height;
-  image.height = image.height;
+  image.setAttribute('maxwidth', oldWidth);
+  image.setAttribute('width', oldWidth);
+  image.setAttribute('maxheight', oldHeight);
+  image.setAttribute('height', oldHeight);
 
   // TODO deal with weird resizing on refresh
 }
@@ -303,10 +322,10 @@ function replaceSrcContext(i)
     }
   }
   // limit size
-  clickedEl.maxwidth = clickedEl.width;
-  clickedEl.width = clickedEl.width;
-  clickedEl.maxheight = clickedEl.height;
-  clickedEl.height = clickedEl.height;
+  clickedEl.setAttribute('maxwidth', oldWidth);
+  clickedEl.setAttribute('width', oldWidth);
+  clickedEl.setAttribute('maxheight', oldHeight);
+  clickedEl.setAttribute('height', oldHeight);
 
   // store old src if not already stored
   console.log(clickedEl.getAttribute("old-source"));
@@ -399,8 +418,16 @@ function run()
   }
 }
 
+// turn off caching 
+var textnode = document.createTextNode("<meta http-equiv='Cache-Control' content='no-cache, no-store, must-revalidate' />");
+var textnode1 = document.createTextNode("<meta http-equiv='Pragma' content='no-cache' />");
+var textnode2 = document.createTextNode("<meta http-equiv='Expires' content='0' />");
+document.getElementsByTagName('head')[0].appendChild(textnode);
+document.getElementsByTagName('head')[0].appendChild(textnode1);
+document.getElementsByTagName('head')[0].appendChild(textnode2);
+
 findTrumps();
 //window.addEventListener('load', findTrumps, false);
 //window.addEventListener("DOMContentLoaded", findTrumps);
+
 //setTimeout(findTrumps, 5000);
-//run();
