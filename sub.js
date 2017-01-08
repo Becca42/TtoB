@@ -20,7 +20,7 @@ console.log("debug");
 var boList = ["Bo_1", "Bo_2", "Bo_3", "Bo_4", "Bo_5", "Bo_6", "Bo_7", "Bo_8"];
 
 // list of aspect ratios used
-var ratioList = ["4x3", "3x2", "16x9", "5x3", "5x4", "1x1"];
+var ratioList = [{dimensions: "9x16", val: 0.5625}, {dimensions: "4x6", val: 0.666}, {dimensions: "8x10", val: 0.8}, {dimensions: "1x1", val: 1.0}, {dimensions: "5x4", val: 1.25}, {dimensions: "4x3", val: 1.33}, {dimensions: "3x2", val: 1.5}, {dimensions: "5x3", val: 1.67}, {dimensions: "16x9", val: 1.78}];
 
 /* add JQuery to document -- code from stackoverflow*/
 function addJQ()
@@ -92,7 +92,11 @@ function checkTagBackgrounds(tag)
   addJQ();
   // get new url
   var chosenBo = boList[Math.floor(Math.random() * boList.length)];
-  var newrl = chrome.extension.getURL("/images/" + chosenBo + ".jpg");
+
+  var aspect = parseInt($(tag).css('width'), 10)/parseInt($(tag).css('height'), 10);
+  var ratio = getClosestRatio(aspect, 0, ratioList.length - 1);
+
+  var newrl = chrome.extension.getURL("/images/" + chosenBo + "/" + ratio + ".jpg");
   if (tag == 'div')
   {
     newrl = 'url("' + newrl + '"';
@@ -127,52 +131,36 @@ function checkTagBackgrounds(tag)
 }
 
 /* returns closest aspect ratio from global ratioList to aspect */
-function getClosestRatio(aspect)
+function getClosestRatio(aspect, start, end)
 {
-  // 4/3 = 1.33; 3/2 = 1.5; 16/9 = 1.78; 5/3 = 1.67; 5/4 = 1.25; 1/1 = 1; 9/16 = 0.5625; 4/6 = 0.666; 8/10 = 0.8
-  var epsilon = 0.001;
+  var epsilon = 0.01;
 
-  // TODO use lazy binary tree
-
-  if (Math.abs(1 - aspect) < epsilon)
+  // no good enough match found
+  if (start > end)
   {
-    return "1x1";
+    if (end >= 0 && end <= (ratioList.length - 1))
+    {
+      return ratioList[end].dimensions;
+    }
+    else
+    {
+      return ratioList[start].dimensions;
+    }
   }
-  else if (Math.abs(1.25 - aspect) < epsilon)
+  var middle = Math.floor((start + end)/2);
+  var val = ratioList[middle].val;
+  // found close enough match
+  if (Math.abs(val - aspect) < epsilon)
   {
-    return "5x4";
+    return ratioList[middle].dimensions;
   }
-  else if (Math.abs(1.33 - aspect) < epsilon)
+  else if (aspect > val)
   {
-    return "4x3";
-  }
-  else if (Math.abs(1.5 - aspect) < epsilon)
-  {
-    return "3x2";
-  }
-  else if (Math.abs(1.67 - aspect) < epsilon)
-  {
-    return "5x3";
-  }
-  else if (Math.abs(1.78 - aspect) < epsilon)
-  {
-    return "16x9";
-  }
-  else if (Math.abs(0.5625 - aspect) < epsilon)
-  {
-    return "9x16";
-  }
-  else if (Math.abs(0.667 - aspect) < epsilon)
-  {
-    return "4x6";
-  }
-  else if (Math.abs(0.8 - aspect) < epsilon)
-  {
-    return "8x10";
+    return getClosestRatio(aspect, middle + 1, end);
   }
   else
   {
-    return "4x3";
+    return getClosestRatio(aspect, start, middle - 1);
   }
 }
 
@@ -186,14 +174,11 @@ function findReplaceSRC(image)
   // get aspect ratio
   var aspect = oldWidth/oldHeight;
 
-  var ratio = getClosestRatio(aspect);
+  var ratio = getClosestRatio(aspect, 0, ratioList.length - 1);
 
   // get replacement url
   var chosenBo = boList[Math.floor(Math.random() * boList.length)];
   var newrl = chrome.extension.getURL("/images/" + chosenBo + "/" + ratio + ".jpg");
-
-  console.log("image: " + oldrl);
-  console.log("width: " + image.width);
 
   if (image.width === 0 && image.height === 0)
   {
@@ -206,7 +191,7 @@ function findReplaceSRC(image)
   for (var att, i = 0, atts = image.attributes, n = atts.length; i < n; i++){
       att = atts[i];
 
-      console.log(att.nodeName + ": " + att.nodeValue);
+      //console.log(att.nodeName + ": " + att.nodeValue);
       // check if attribute contains 'src'
       var srcRegex = new RegExp("(src)");
       var lower = att.nodeName.toLowerCase();
@@ -229,9 +214,6 @@ function findReplaceSRC(image)
   image.setAttribute('width', oldWidth);
   image.setAttribute('maxheight', oldHeight);
   image.setAttribute('height', oldHeight);
-
-  console.log("width reset: "+image.width);
-
 
   // store old src
   if (image.getAttribute("old-source") == "none" || !image.getAttribute("old-source"))
@@ -350,7 +332,7 @@ function replaceSrcContext(i)
   // get aspect ratio
   var aspect = oldWidth/oldHeight;
 
-  var ratio = getClosestRatio(aspect);
+  var ratio = getClosestRatio(aspect, 0, ratioList.length - 1);
 
   // get replacement url
   var chosenBo = boList[Math.floor(Math.random() * boList.length)];
@@ -370,10 +352,8 @@ function replaceSrcContext(i)
     // if attribute contains src
     if (lower.match(srcRegex))
     {
-      console.log("found src tag");
       if (lower == "srcset")
         {
-          console.log('srcset');
           // get urls from srcset value
           var expression = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?/gi;
           var urlRegex = new RegExp(expression);
