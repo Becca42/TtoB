@@ -3,7 +3,6 @@
  * Help from: https://blog.lateral.io/2016/04/create-chrome-extension-modify-websites-html-css/ 
  *
  * TODO:
- *   - look at aspect ration of incoming image and have various replacement images to better match ratios
  *   - add option on right click to convert image for divs and links with background images
  *   - deal with images inserted by script e.g. twitter widgets/embeds
  *   - check text enclosed by links <a> example trump .... </a>?
@@ -13,7 +12,6 @@
  *   - can't handle images inserted by scripts e.g. twitter avatar
  *   - fix problems like this page - http://www.npr.org/2016/12/28/507305600/trump-speaks-briefly-to-reporters-reversing-obama-criticism-and-touting-new-jobs
  *     (trump doesn't appear in src or alt, no surrounding link -- maybe look for closest <p></p>?)
- *   - repaced image when reloaded (after returning via 'back' from clicked through page) is set to origianl (large) image size instead of intended size on page
  */
 
 
@@ -132,7 +130,9 @@ function checkTagBackgrounds(tag)
 function getClosestRatio(aspect)
 {
   // 4/3 = 1.33; 3/2 = 1.5; 16/9 = 1.78; 5/3 = 1.67; 5/4 = 1.25; 1/1 = 1; 9/16 = 0.5625; 4/6 = 0.666; 8/10 = 0.8
-  var epsilon = 0.0001;
+  var epsilon = 0.001;
+
+  // TODO use lazy binary tree
 
   if (Math.abs(1 - aspect) < epsilon)
   {
@@ -323,8 +323,6 @@ function replace(image)
 
   }
 
-  // TODO deal with data-hi-res-src and data-low-res-src or maybe just any tag that says src, can you regex serach tags???
-
   // Code to find tag attributes containing src
   /*for(var key in image)
   {
@@ -340,8 +338,6 @@ function replace(image)
   image.setAttribute('width', oldWidth);
   image.setAttribute('maxheight', oldHeight);
   image.setAttribute('height', oldHeight);
-
-  // TODO deal with weird resizing on refresh
 }
 
 /* Context Menu Code :: help from http://stackoverflow.com/questions/14452777/is-that-possible-calling-content-script-method-by-context-menu-item-in-chrome-ex */
@@ -349,7 +345,18 @@ function replace(image)
 /* Replaces src of clicked image and store old src */
 function replaceSrcContext(i)
 {
-  var newrl = chrome.extension.getURL("/images/Bo_4.jpg") + "?" + new Date().getTime();
+  var oldWidth = clickedEl.width;
+  var oldHeight = clickedEl.height;
+  // get aspect ratio
+  var aspect = oldWidth/oldHeight;
+
+  var ratio = getClosestRatio(aspect);
+
+  // get replacement url
+  var chosenBo = boList[Math.floor(Math.random() * boList.length)];
+  var newrl = chrome.extension.getURL("/images/" + chosenBo + "/" + ratio + ".jpg") + "?" + new Date().getTime();
+
+
   // get old src
   var oldrl = i.srcUrl;
   // replace src
