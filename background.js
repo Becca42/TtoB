@@ -8,7 +8,6 @@ function deTrump(info, tab) {
     console.log("info: " + JSON.stringify(info));
     console.log("tab: " + JSON.stringify(tab));
 
-    //Add all you functional Logic here
     chrome.tabs.query({
         "active": true,
         "currentWindow": true
@@ -33,24 +32,75 @@ function revertImage(info, tab)
 	});
 }
 
+/* Link Code */
+
+function deTrumpLink(info, tab) {
+    console.log("item " + info.menuItemId + " was clicked");
+    console.log("info: " + JSON.stringify(info));
+    console.log("tab: " + JSON.stringify(tab));
+
+    chrome.tabs.query({
+        "active": true,
+        "currentWindow": true
+    }, function (tabs) {
+		chrome.tabs.sendMessage(tabs[0].id, {
+			"functiontoInvoke": "replaceLinkContext",
+			"info" : info,
+		});
+    });
+}
+
+function revertLink(info, tab)
+{
+	chrome.tabs.query({
+        "active": true,
+        "currentWindow": true
+    }, function (tabs) {
+		chrome.tabs.sendMessage(tabs[0].id, {
+			"functiontoInvoke": "revertLink",
+			"info" : info,
+		});
+	});
+}
+
 /* Create a context menu with "de-trump" and "revert" options
  */
-var parent1 = chrome.contextMenus.create({
+var imageParent = chrome.contextMenus.create({
 	"title": "Change Image",
 	"type": "normal",
 	"contexts": ["image"]
 });
-var child1 = chrome.contextMenus.create({
+var imageChild1 = chrome.contextMenus.create({
 	"title": "Replace Image",
-	"parentId": parent1,
+	"parentId": imageParent,
 	"type": "normal",
 	"contexts": ["image"],
 	"onclick": deTrump
 });
-var child2 = chrome.contextMenus.create({
+var imageChild12 = chrome.contextMenus.create({
 	"title": "Restore Original Image",
-	"parentId": parent1,
+	"parentId": imageParent,
 	"type": "normal",
 	"contexts": ["image"],
 	"onclick": revertImage
+});
+
+var linkParent = chrome.contextMenus.create({
+	"title": "Change Image",
+	"type": "normal",
+	"contexts": ["link"]
+});
+var linkChild1 = chrome.contextMenus.create({
+	"title": "Find and Replace Background Image",
+	"parentId": linkParent,
+	"type": "normal",
+	"contexts": ["link"],
+	"onclick": deTrumpLink
+});
+var linkChild2 = chrome.contextMenus.create({
+	"title": "Restore Original Image",
+	"parentId": linkParent,
+	"type": "normal",
+	"contexts": ["link"],
+	"onclick": revertLink
 });

@@ -294,17 +294,6 @@ function replace(image)
   var urlRegex = new RegExp(expression);
   image.srcset = image.srcset.replace(urlRegex, newrl);
 
-  // TODO deal with data-original ????????????????
-  //if (image.getAttribute("data-original"))
-  if (false)
-  {
-    console.log(image.getAttribute("data-original"));
-    image.setAttribute("data-original", newrl);
-    console.log(image.getAttribute("data-original"));
-    console.log(image.class);
-
-  }
-
   // Code to find tag attributes containing src
   /*for(var key in image)
   {
@@ -321,6 +310,16 @@ function replace(image)
   image.setAttribute('maxheight', oldHeight);
   image.setAttribute('height', oldHeight);
 }
+
+
+/* Mousedown listener to use for identify context menu update images 
+ * from: http://stackoverflow.com/questions/7703697/how-to-retrieve-the-element-where-a-contextmenu-has-been-executed */
+document.addEventListener("mousedown", function(event){
+    //right click
+    if(event.button == 2) {
+        clickedEl = event.target;
+    }
+}, true);
 
 /* Context Menu Code :: help from http://stackoverflow.com/questions/14452777/is-that-possible-calling-content-script-method-by-context-menu-item-in-chrome-ex */
 
@@ -380,16 +379,7 @@ function replaceSrcContext(i)
   }
 }
 
-/* Mousedown listener to use for identify context menu update images 
- * from: http://stackoverflow.com/questions/7703697/how-to-retrieve-the-element-where-a-contextmenu-has-been-executed */
-document.addEventListener("mousedown", function(event){
-    //right click
-    if(event.button == 2) {
-        clickedEl = event.target;
-    }
-}, true);
-
-/* TODO */
+/* Returns image (all src-containing attributes) to origianl source using old-source tag */
 function revertImage(i)
 {
   console.log("reverting");
@@ -433,9 +423,23 @@ function revertImage(i)
           }
       }
     }
-    // delete old-source?
+    // mark picture as original
     clickedEl.setAttribute('old-source', "none");
   }
+}
+
+/* Functions for context menu link background replacement */
+
+/* TODO */
+function replaceLinkContext(i)
+{
+  console.log("REPLACE LINK BACKGROUND TODO");
+}
+
+/* TODO */
+function revertLink(i)
+{
+  console.log("REVERT LINK TODO");
 }
 
 /* (context menu) message listener */
@@ -445,6 +449,12 @@ chrome.extension.onMessage.addListener(function (message, sender, callback) {
     }
     if (message.functiontoInvoke == "revertImage") {
         revertImage(message.info);
+    }
+    if (message.functiontoInvoke == "replaceLinkContext") {
+        replaceLinkContext(message.info);
+    }
+    if (message.functiontoInvoke == "revertLink") {
+        revertLink(message.info);
     }
 });
 
