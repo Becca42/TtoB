@@ -3,7 +3,6 @@
  * Help from: https://blog.lateral.io/2016/04/create-chrome-extension-modify-websites-html-css/ 
  *
  * TODO:
- *   - add option on right click to convert image for divs and links with background images -- In Progress
  *   - deal with images inserted by script e.g. twitter widgets/embeds
  *   - check text enclosed by links <a> example trump .... </a>?
  *   - make some kind of options or info page (include option of replacement image, ability to turn off script for site/page)
@@ -372,7 +371,6 @@ function replaceSrcContext(i)
   clickedEl.setAttribute('height', oldHeight);
 
   // store old src if not already stored
-  console.log(clickedEl.getAttribute("old-source"));
   if (!clickedEl.getAttribute("old-source") || (clickedEl.getAttribute("old-source") == "none"))
   {
     console.log('replacing');
@@ -383,11 +381,6 @@ function replaceSrcContext(i)
 /* Returns image (all src-containing attributes) to origianl source using old-source tag */
 function revertImage(i)
 {
-  console.log("reverting");
-
-  // get clicked image
-  console.log(clickedEl);
-
   // chekc if image has been replaced yet
   if (clickedEl.getAttribute('old-source') === "" || clickedEl.getAttribute('old-source') == 'none' || !clickedEl.getAttribute("old-source"))
   {
@@ -399,7 +392,6 @@ function revertImage(i)
     var oldrl = clickedEl.getAttribute('old-source');
     // reset src
     clickedEl.setAttribute('src', oldrl);
-    // TODO deal with other src tags
     // check other src options on image
     for (var att, k = 0, atts = clickedEl.attributes, n = atts.length; k < n; k++){
       att = atts[k];
@@ -431,16 +423,59 @@ function revertImage(i)
 
 /* Functions for context menu link background replacement */
 
-/* TODO */
+/* replaces style background image if it exists */
 function replaceLinkContext(i)
 {
-  console.log("REPLACE LINK BACKGROUND TODO");
+  //var style = window.getComputedStyle(clickedEl);
+  //var backImage = style.getPropertyValue('background-image');
+
+  // check that a background image exists
+  if (clickedEl.style["background-image"])
+  {
+    var oldWidth = clickedEl.offsetWidth;
+    var oldHeight = clickedEl.offsetHeight;
+    console.log("width: " + oldWidth + " height: " + oldHeight);
+    // get aspect ratio
+    var aspect = oldWidth/oldHeight;
+    var ratio = getClosestRatio(aspect, 0, ratioList.length - 1);
+
+    // get replacement url
+    var chosenBo = boList[Math.floor(Math.random() * boList.length)];
+    var newrl = "url(" + chrome.extension.getURL("/images/" + chosenBo + "/" + ratio + ".jpg") + "?" + new Date().getTime() + ")";
+
+    // get old url
+    var oldSource = clickedEl.style["background-image"];
+    if (!clickedEl.getAttribute("old-source") || (clickedEl.getAttribute("old-source") == "none"))
+    {
+      clickedEl.setAttribute("old-source", oldSource);
+    }
+
+    // replace background image in style
+    clickedEl.style["background-image"] = newrl;
+  }
+  else
+  {
+    console.log("No image to replace.");
+  }
 }
 
-/* TODO */
+/* Returns element's background image to original source using old-source tag (if element has been marked as changed) */
 function revertLink(i)
 {
   console.log("REVERT LINK TODO");
+  // chekc if image has been replaced yet
+  if (clickedEl.getAttribute('old-source') === "" || clickedEl.getAttribute('old-source') == 'none' || !clickedEl.getAttribute("old-source"))
+  {
+    console.log("hasn't been replaced");
+    return;
+  }
+  // get old src
+  var oldrl = clickedEl.getAttribute('old-source');
+  // reset src
+  clickedEl.style["background-image"] = oldrl;
+  
+  // mark picture as original
+  clickedEl.setAttribute('old-source', "none");
 }
 
 /* (context menu) message listener */
