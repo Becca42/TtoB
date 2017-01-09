@@ -3,10 +3,11 @@
  * Help from: https://blog.lateral.io/2016/04/create-chrome-extension-modify-websites-html-css/ 
  *
  * TODO:
- *   - add option on right click to convert image for divs and links with background images
+ *   - add option on right click to convert image for divs and links with background images -- In Progress
  *   - deal with images inserted by script e.g. twitter widgets/embeds
  *   - check text enclosed by links <a> example trump .... </a>?
- *   - make some kind of options or info page
+ *   - make some kind of options or info page (include option of replacement image, ability to turn off script for site/page)
+ *   - add gallery of trumpets
  * 
  * KNOWN "BUGS":
  *   - can't handle images inserted by scripts e.g. twitter avatar
@@ -14,8 +15,8 @@
  *     (trump doesn't appear in src or alt, no surrounding link -- maybe look for closest <p></p>?)
  */
 
+/* Globals: */
 
-console.log("debug");
 // list of all boIds (correspond to Bo pics)
 var boList = ["Bo_1", "Bo_2", "Bo_3", "Bo_4", "Bo_5", "Bo_6", "Bo_7", "Bo_8"];
 
@@ -445,16 +446,26 @@ function revertLink(i)
 /* (context menu) message listener */
 chrome.extension.onMessage.addListener(function (message, sender, callback) {
     if (message.functiontoInvoke == "replaceSrcContext") {
+      if (message.info.srcUrl)
+      {
         replaceSrcContext(message.info);
+      }
+      else
+      {
+        // TODO go somewhere else for links
+        replaceLinkContext(message.info);
+      }
     }
     if (message.functiontoInvoke == "revertImage") {
+      if (message.info.srcUrl)
+      {
         revertImage(message.info);
-    }
-    if (message.functiontoInvoke == "replaceLinkContext") {
-        replaceLinkContext(message.info);
-    }
-    if (message.functiontoInvoke == "revertLink") {
+      }
+      else
+      {
+        // TODO go somewhere else for links
         revertLink(message.info);
+      }
     }
 });
 
