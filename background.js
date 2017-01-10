@@ -40,14 +40,14 @@ var imageParent = chrome.contextMenus.create({
 	"contexts": ["link", "image"]
 });
 var imageChild1 = chrome.contextMenus.create({
-	"title": "Replace Image",
+	"title": "You're Fired (Replace Image)",
 	"parentId": imageParent,
 	"type": "normal",
 	"contexts": ["link", "image"],
 	"onclick": deTrump
 });
 var imageChild12 = chrome.contextMenus.create({
-	"title": "Restore Original Image",
+	"title": "Re-hired (Restore Original)",
 	"parentId": imageParent,
 	"type": "normal",
 	"contexts": ["link", "image"],

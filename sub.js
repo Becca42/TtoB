@@ -3,24 +3,33 @@
  * Help from: https://blog.lateral.io/2016/04/create-chrome-extension-modify-websites-html-css/ 
  *
  * TODO:
+ *   - deal with <picture> tag
+ *   - keyboard shortcut to replace images
  *   - deal with images inserted by script e.g. twitter widgets/embeds
  *   - check text enclosed by links <a> example trump .... </a>?
  *   - make some kind of options or info page (include option of replacement image, ability to turn off script for site/page)
- *   - add gallery of trumpets
+ *   - add gallery of trumpets -- In Progress
+ *   - add gallery of pride and diversity flags
  * 
  * KNOWN "BUGS":
  *   - can't handle images inserted by scripts e.g. twitter avatar
  *   - fix problems like this page - http://www.npr.org/2016/12/28/507305600/trump-speaks-briefly-to-reporters-reversing-obama-criticism-and-touting-new-jobs
  *     (trump doesn't appear in src or alt, no surrounding link -- maybe look for closest <p></p>?)
+ *   - link w/in div that has a background image doesn't work for context menu replace
  */
 
 /* Globals: */
 
 // list of all boIds (correspond to Bo pics)
 var boList = ["Bo_1", "Bo_2", "Bo_3", "Bo_4", "Bo_5", "Bo_6", "Bo_7", "Bo_8"];
+var trompetList = ["trompet_1", "trompet_2", "trompet_3", "trompet_4", "trompet_5", "trompet_6", "trompet_7", "trompet_8", "trompet_9", "trompet_10"];
 
 // list of aspect ratios used
 var ratioList = [{dimensions: "9x16", val: 0.5625}, {dimensions: "4x6", val: 0.666}, {dimensions: "8x10", val: 0.8}, {dimensions: "1x1", val: 1.0}, {dimensions: "5x4", val: 1.25}, {dimensions: "4x3", val: 1.33}, {dimensions: "3x2", val: 1.5}, {dimensions: "5x3", val: 1.67}, {dimensions: "16x9", val: 1.78}];
+
+// which photos to use
+var folder = "trompet_images";
+var imgList = trompetList;
 
 /* add JQuery to document -- code from stackoverflow*/
 function addJQ()
@@ -91,12 +100,12 @@ function checkTagBackgrounds(tag)
 
   addJQ();
   // get new url
-  var chosenBo = boList[Math.floor(Math.random() * boList.length)];
+  var chosenBo = imgList[Math.floor(Math.random() * imgList.length)];
 
   var aspect = parseInt($(tag).css('width'), 10)/parseInt($(tag).css('height'), 10);
   var ratio = getClosestRatio(aspect, 0, ratioList.length - 1);
 
-  var newrl = chrome.extension.getURL("/images/" + chosenBo + "/" + ratio + ".jpg");
+  var newrl = chrome.extension.getURL("/images/" + folder + "/" + chosenBo + "/" + ratio + ".jpg");
   if (tag == 'div')
   {
     newrl = 'url("' + newrl + '"';
@@ -177,8 +186,8 @@ function findReplaceSRC(image)
   var ratio = getClosestRatio(aspect, 0, ratioList.length - 1);
 
   // get replacement url
-  var chosenBo = boList[Math.floor(Math.random() * boList.length)];
-  var newrl = chrome.extension.getURL("/images/" + chosenBo + "/" + ratio + ".jpg");
+  var chosenBo = imgList[Math.floor(Math.random() * imgList.length)];
+  var newrl = chrome.extension.getURL("/images/" + folder + "/" + chosenBo + "/" + ratio + ".jpg");
 
   if (image.width === 0 && image.height === 0)
   {
@@ -241,6 +250,8 @@ function findTrumps()
 
     // TODO check data-mediaviewer-caption?
 
+    // TODO deal with data-original?
+
     if (inSRC || inAlt)
     {
       found = true;
@@ -280,8 +291,8 @@ function findTrumps()
 function replace(image)
 {
   // choose random Bo
-  var chosenBo = boList[Math.floor(Math.random() * boList.length)];
-  var newrl = chrome.extension.getURL("/images/" + chosenBo + ".jpg");
+  var chosenBo = imgList[Math.floor(Math.random() * imgList.length)];
+  var newrl = chrome.extension.getURL("/images/" + folder + "/" + chosenBo + ".jpg");
   // switch img src to be of Bo (should works b/c http://stackoverflow.com/questions/518000/is-javascript-a-pass-by-reference-or-pass-by-value-language)
   //image.src = "chrome-extension://__MSG_@@extension_id__/images/" + chosenBo + ".jpg";
   image.src = newrl;
@@ -334,8 +345,8 @@ function replaceSrcContext(i)
   var ratio = getClosestRatio(aspect, 0, ratioList.length - 1);
 
   // get replacement url
-  var chosenBo = boList[Math.floor(Math.random() * boList.length)];
-  var newrl = chrome.extension.getURL("/images/" + chosenBo + "/" + ratio + ".jpg") + "?" + new Date().getTime();
+  var chosenBo = imgList[Math.floor(Math.random() * imgList.length)];
+  var newrl = chrome.extension.getURL("/images/" + folder + "/" + chosenBo + "/" + ratio + ".jpg") + "?" + new Date().getTime();
 
 
   // get old src
@@ -440,8 +451,8 @@ function replaceLinkContext(i)
     var ratio = getClosestRatio(aspect, 0, ratioList.length - 1);
 
     // get replacement url
-    var chosenBo = boList[Math.floor(Math.random() * boList.length)];
-    var newrl = "url(" + chrome.extension.getURL("/images/" + chosenBo + "/" + ratio + ".jpg") + "?" + new Date().getTime() + ")";
+    var chosenBo = imgList[Math.floor(Math.random() * imgList.length)];
+    var newrl = "url(" + chrome.extension.getURL("/images/" + folder + "/" + chosenBo + "/" + ratio + ".jpg") + "?" + new Date().getTime() + ")";
 
     // get old url
     var oldSource = clickedEl.style["background-image"];
