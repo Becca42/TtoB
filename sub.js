@@ -3,13 +3,11 @@
  * Help from: https://blog.lateral.io/2016/04/create-chrome-extension-modify-websites-html-css/ 
  *
  * TODO:
- *   - deal with <picture> tag
+ *   - deal with <picture> tag?
  *   - keyboard shortcut to replace images
- *   - deal with images inserted by script e.g. twitter widgets/embeds
  *   - check text enclosed by links <a> example trump .... </a>?
  *   - make some kind of options or info page (include option of replacement image, ability to turn off script for site/page)
- *   - add gallery of trumpets -- In Progress
- *   - add gallery of pride and diversity flags
+ *   - deal with links that have direct parents or children with background images
  * 
  * KNOWN "BUGS":
  *   - can't handle images inserted by scripts e.g. twitter avatar
