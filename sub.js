@@ -18,7 +18,14 @@
 
 /* Globals: */
 
-// list of all boIds (correspond to Bo pics)
+// image type enum
+var imageTypes = {
+  BO: 0,
+  FLAG: 1,
+  TROMPET: 2,
+};
+
+// list of all images to choose from for each type
 var boList = ["Bo_1", "Bo_2", "Bo_3", "Bo_4", "Bo_5", "Bo_6", "Bo_7", "Bo_8"];
 var trompetList = ["trompet_1", "trompet_2", "trompet_3", "trompet_4", "trompet_5", "trompet_6", "trompet_7", "trompet_8", "trompet_9", "trompet_10"];
 var flagList = ["flag_01", "flag_02", "flag_03", "flag_04", "flag_05", "flag_05", "flag_06", "flag_07", "flag_08", "flag_09", "flag_10", "flag_11"];
@@ -27,8 +34,9 @@ var flagList = ["flag_01", "flag_02", "flag_03", "flag_04", "flag_05", "flag_05"
 var ratioList = [{dimensions: "9x16", val: 0.5625}, {dimensions: "4x6", val: 0.666}, {dimensions: "8x10", val: 0.8}, {dimensions: "1x1", val: 1.0}, {dimensions: "5x4", val: 1.25}, {dimensions: "4x3", val: 1.33}, {dimensions: "3x2", val: 1.5}, {dimensions: "5x3", val: 1.67}, {dimensions: "16x9", val: 1.78}];
 
 // which photos to use
-var folder = "flag_images";
-var imgList = flagList;
+var imageTypesList = [{folder: "bo_images", imgList: boList}, {folder: "flag_images", imgList: flagList}, {folder: "trompet_images", imgList: trompetList}];
+var folder = imageTypesList[imageTypes.TROMPET].folder;
+var imgList = imageTypesList[imageTypes.TROMPET].imgList;
 
 /* add JQuery to document -- code from stackoverflow*/
 function addJQ()
