@@ -3,25 +3,59 @@
 <head>
   <title>You're Fired Options</title>
   <style type="text/css">
-    #content div{
-      margin: 5% 12% 0 18%;
+
+    #title {
+      margin: auto;
+      display: block;
+    }
+
+    h1 {
+      text-align: center; /* TODO get it actually cenetred */
+      margin-top: 5%;
+    }
+
+    #content {
+      margin: 5% 12% 0 12%;
       width: 70%;
+      padding: 2%;
       border: 1px solid black;
+    }
+
+    #content input {
+      font-size: large;
+    }
+
+    form div {
+      display: inline-block;
+      padding: 2%;
     }
 
   </style>
 </head>
 <body>
 
+<div id="title">
+  <h1>You're Fired: A Trump Management System</h1>
+</div>
+
 <div id="content"> 
 <h3>Image Type Select</h3>
 <p><form>
-  <input type="radio" checked="true" name="imageTypes" id="BO">Bo</input> <br>
-  <input type="radio" name="imageTypes" id="FLAG">Flag</input> <br>
-  <input type="radio" name="imageTypes" id="TROMPET">Trumpet</input> 
+  <div>
+    <img src="" id="BO_IMG" height="150px" width="150px")/> <br>
+    <input type="radio" checked="true" name="imageTypes" id="BO">Bo</input>
+  </div>
+  <div>
+    <img src="" id="FLAG_IMG" height="150px" width="150px")/> <br>
+    <input type="radio" name="imageTypes" id="FLAG">Flag</input>
+  </div>
+  <div>
+    <img src="" id="TROMP_IMG" height="150px" width="150px")/> <br>
+    <input type="radio" name="imageTypes" id="TROMPET">Trumpet</input> 
+  </div>
 </form></p>
 <div id="status"></div>
-<button id="save">Save</button>
+<button id="save"> Save </button>
 </div>
 
 <script src="options.js"></script>

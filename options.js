@@ -36,6 +36,11 @@ function restore_options() {
 		}
 	}
   });
+
+  // add image srcs
+  document.getElementById('BO_IMG').src = chrome.extension.getURL("/images/bo_images/Bo_1/1x1.jpg");
+  document.getElementById('FLAG_IMG').src = chrome.extension.getURL("/images/flag_images/flag_01/1x1.jpg");
+  document.getElementById('TROMP_IMG').src = chrome.extension.getURL("/images/trompet_images/trompet_1/1x1.jpg");
 }
 document.addEventListener('DOMContentLoaded', restore_options);
 document.getElementById('save').addEventListener('click',

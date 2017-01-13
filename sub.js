@@ -558,15 +558,8 @@ document.getElementsByTagName('head')[0].appendChild(textnode2);
 
 /* Options Code */
 chrome.storage.onChanged.addListener(function(changes, namespace) {
-  console.log("here");
   for (var key in changes) {
     var storageChange = changes[key];
-    console.log('Storage key "%s" in namespace "%s" changed. ' +
-                'Old value was "%s", new value is "%s".',
-                key,
-                namespace,
-                storageChange.oldValue,
-                storageChange.newValue);
     folder = imageTypesList[imageTypes[storageChange.newValue]].folder;
     imgList = imageTypesList[imageTypes[storageChange.newValue]].imgList;
     findTrumps();
