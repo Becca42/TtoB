@@ -1,3 +1,6 @@
+/* Code adapted from https://developer.chrome.com/extensions/options */
+
+/* Saves options to storage, displays a temporary message when save button is clicked */
 function save_options() {
 	var selectedType;
 	var radios = document.getElementsByName('imageTypes');
@@ -16,12 +19,12 @@ function save_options() {
     status.textContent = 'Options saved.';
     setTimeout(function() {
       status.textContent = '';
-    }, 750);
+    }, 900);
   });
 }
 
-// Restores select box and checkbox state using the preferences
-// stored in chrome.storage.
+/* Restores select box and checkbox state using the preferences
+ * stored in chrome.storage. */
 function restore_options() {
   // Use default value imgType = 'BO'
   chrome.storage.sync.get({

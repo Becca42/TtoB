@@ -4,6 +4,10 @@
   <title>You're Fired Options</title>
   <style type="text/css">
 
+    body {
+      background-color: #ebeef4;
+    }
+
     #title {
       margin: auto;
       display: block;
@@ -12,22 +16,48 @@
     h1 {
       text-align: center; /* TODO get it actually cenetred */
       margin-top: 5%;
+      font-size: 400%;
+    }
+
+    h2 {
+      font-size: 200%;
     }
 
     #content {
-      margin: 5% 12% 0 12%;
+      margin: auto;
       width: 70%;
-      padding: 2%;
-      border: 1px solid black;
+      padding: 5%;
+      border-radius: 25px;
+      background-color: #fcfdff;
+    }
+
+    #content img {
+      border-radius: 25px;
+    }
+
+    #content label {
+      font-size: large;
     }
 
     #content input {
       font-size: large;
     }
 
+    #content button {
+      font-size: 150%;
+    }
+
+    #status {
+      font-size: 200%;
+      color: blue;
+      margin-top: 2%;
+      margin-bottom: 4%;
+    }
+
     form div {
       display: inline-block;
       padding: 2%;
+      padding-right: 4%;
     }
 
   </style>
@@ -39,19 +69,19 @@
 </div>
 
 <div id="content"> 
-<h3>Image Type Select</h3>
+<h2>Image Type Select</h2>
 <p><form>
   <div>
     <img src="" id="BO_IMG" height="150px" width="150px")/> <br>
-    <input type="radio" checked="true" name="imageTypes" id="BO">Bo</input>
+    <input type="radio" checked="true" name="imageTypes" id="BO" /><label>Bo</label>
   </div>
   <div>
     <img src="" id="FLAG_IMG" height="150px" width="150px")/> <br>
-    <input type="radio" name="imageTypes" id="FLAG">Flag</input>
+    <input type="radio" name="imageTypes" id="FLAG"/><label>Flag</label>
   </div>
   <div>
     <img src="" id="TROMP_IMG" height="150px" width="150px")/> <br>
-    <input type="radio" name="imageTypes" id="TROMPET">Trumpet</input> 
+    <input type="radio" name="imageTypes" id="TROMPET"/><label>Trumpet</label>
   </div>
 </form></p>
 <div id="status"></div>
