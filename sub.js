@@ -548,20 +548,6 @@ chrome.extension.onMessage.addListener(function (message, sender, callback) {
     }
 });
 
-// TODO -- this hot mess
-function run()
-{
-  var a = false;
-  while(a)
-  {
-    if(performance.navigation.type  == 1 )
-    {
-      console.log('page reloaded');
-      a = false;
-    }
-  }
-}
-
 // turn off caching 
 var textnode = document.createTextNode("<meta http-equiv='Cache-Control' content='no-cache, no-store, must-revalidate' />");
 var textnode1 = document.createTextNode("<meta http-equiv='Pragma' content='no-cache' />");
@@ -569,6 +555,25 @@ var textnode2 = document.createTextNode("<meta http-equiv='Expires' content='0' 
 document.getElementsByTagName('head')[0].appendChild(textnode);
 document.getElementsByTagName('head')[0].appendChild(textnode1);
 document.getElementsByTagName('head')[0].appendChild(textnode2);
+
+/* Options Code */
+chrome.storage.onChanged.addListener(function(changes, namespace) {
+  console.log("here");
+  for (var key in changes) {
+    var storageChange = changes[key];
+    console.log('Storage key "%s" in namespace "%s" changed. ' +
+                'Old value was "%s", new value is "%s".',
+                key,
+                namespace,
+                storageChange.oldValue,
+                storageChange.newValue);
+    folder = imageTypesList[imageTypes[storageChange.newValue]].folder;
+    imgList = imageTypesList[imageTypes[storageChange.newValue]].imgList;
+    findTrumps();
+  }
+});
+
+/* Run Code */
 
 findTrumps();
 //window.addEventListener('load', findTrumps, false);

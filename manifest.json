@@ -15,7 +15,8 @@
     "activeTab",
     "https://ajax.googleapis.com/",
     "contextMenus",
-    "tabs"
+    "tabs",
+    "storage"
   ],
 
   "options_page": "options.html",

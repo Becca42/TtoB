@@ -23,15 +23,16 @@ function save_options() {
 // Restores select box and checkbox state using the preferences
 // stored in chrome.storage.
 function restore_options() {
-  // Use default value color = 'red' and likesColor = true.
+  // Use default value imgType = 'BO'
   chrome.storage.sync.get({
     imgType: 'BO',
   }, function(items) {
 	var radios = document.getElementsByName('imageTypes');
 	for (var i = radios.length - 1; i >= 0; i--) {
-		if (imgType == radios[i].id)
+		if (items.imgType == radios[i].id && items.imgType !== null)
 		{
-			document.getElementById(radios[i]).checked = true;
+			console.log(radios[i]);
+			document.getElementById(radios[i].id).setAttribute("checked", "true");
 		}
 	}
   });

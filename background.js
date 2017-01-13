@@ -1,5 +1,5 @@
 chrome.browserAction.onClicked.addListener(function(tab) {
-    //chrome.tabs.executeScript(null, {file: "sub.js"});
+    chrome.tabs.executeScript(null, {file: "sub.js"});
 });
 
 /* Options Code */
