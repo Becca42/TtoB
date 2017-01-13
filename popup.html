@@ -6,7 +6,7 @@
  -->
 <html>
   <head>
-    <title>Getting Started Extension's Popup</title>
+    <title>You're Fired Popup</title>
     <style>
       body {
         font-family: "Segoe UI", "Lucida Grande", Tahoma, sans-serif;
@@ -27,11 +27,20 @@
       -
       - [1]: https://developer.chrome.com/extensions/contentSecurityPolicy
      -->
-    <script src="sub.js"></script>
+    <script src="popup.js"></script>
   </head>
+
   <body>
-    <div id="status"></div>
-    <img id="image-result" hidden>
+    <div> 
+      Image Type Select
+      <p><form>
+        <input type="radio" checked="true" name="imageTypes" id="BO">Bo</input> <br>
+        <input type="radio" name="imageTypes" id="FLAG">Flag</input> <br>
+        <input type="radio" name="imageTypes" id="TROMPET">Trumpet</input> 
+      </form></p>
+     </div>
+
+    <div> Stop Blocking on This Site? </div>
   </body>
 </html>
 

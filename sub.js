@@ -20,9 +20,9 @@
 
 // image type enum
 var imageTypes = {
-  BO: 0,
-  FLAG: 1,
-  TROMPET: 2,
+  "BO": 0,
+  "FLAG": 1,
+  "TROMPET": 2,
 };
 
 // list of all images to choose from for each type
@@ -470,11 +470,29 @@ function replaceLinkContext(i)
 
     // replace background image in style
     clickedEl.style["background-image"] = newrl;
+
+    return;
   }
-  else
+  // TODO check parent for background image
+  addJQ();
+
+  // get text of closest figcaption
+  var parent = $(clickedEl).closest();
+  if (parent.css('background-image'))
   {
-    console.log("No image to replace.");
+    // TODO replace
+    console.log("has parent with bg image");
+    return;
   }
+  // TODO check child for background image
+  var children = $(clickedEl).children();
+  if (children.css('background-image'))
+  {
+    // TODO replace
+    console.log("has >= 1 child with bg image");
+    return;
+  }
+  console.log("No image to replace.");
 }
 
 /* Returns element's background image to original source using old-source tag (if element has been marked as changed) */
@@ -519,6 +537,14 @@ chrome.extension.onMessage.addListener(function (message, sender, callback) {
         // TODO go somewhere else for links
         revertLink(message.info);
       }
+    }
+    if (message.functiontoInvoke == "changeImageType")
+    {
+      var type = message.imgType;
+      console.log(type);
+      console.log(imageTypes[type]);
+      folder = imageTypesList[imageTypes[message.imgType]].folder;
+      imgList = imageTypesList[imageTypes[message.imgType]].imgList;
     }
 });
 

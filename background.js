@@ -1,13 +1,24 @@
 chrome.browserAction.onClicked.addListener(function(tab) {
-	console.log("here");
-    chrome.tabs.executeScript(null, {file: "sub.js"});
+    //chrome.tabs.executeScript(null, {file: "sub.js"});
 });
 
-function deTrump(info, tab) {
-    console.log("item " + info.menuItemId + " was clicked");
-    console.log("info: " + JSON.stringify(info));
-    console.log("tab: " + JSON.stringify(tab));
+/* Options Code */
+function imgSelect(e) {
+	console.log("help");
+  chrome.tabs.query({
+        "active": true,
+        "currentWindow": true
+    }, function (tabs) {
+		chrome.tabs.sendMessage(tabs[0].id, {
+			"functiontoInvoke": "TODO",
+			"imgType" : this.id,
+		});
+    });
+}
 
+/* Context Menu Code */
+
+function deTrump(info, tab) {
     chrome.tabs.query({
         "active": true,
         "currentWindow": true
