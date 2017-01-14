@@ -37,8 +37,17 @@ var ratioList = [{dimensions: "9x16", val: 0.5625}, {dimensions: "4x6", val: 0.6
 
 // which photos to use
 var imageTypesList = [{folder: "bo_images", imgList: boList}, {folder: "flag_images", imgList: flagList}, {folder: "trompet_images", imgList: trompetList}];
-var folder = imageTypesList[imageTypes.TROMPET].folder;
-var imgList = imageTypesList[imageTypes.TROMPET].imgList;
+var selected = "BO";
+chrome.storage.sync.get("imgType", function (type) {
+  selected = type.imgType;
+  console.log(type);
+  folder = imageTypesList[imageTypes[selected]].folder;
+  imgList = imageTypesList[imageTypes[selected]].imgList;
+
+  findTrumps();
+});
+var folder = imageTypesList[imageTypes[selected]].folder;
+var imgList = imageTypesList[imageTypes[selected]].imgList;
 
 /* add JQuery to document -- code from stackoverflow*/
 function addJQ()
@@ -621,7 +630,7 @@ function updateImgTypeOther()
   {
     if (replacedDivs[i].getAttribute("old-source") != "none")
     {
-      // TODO get bg image path
+      // get bg image path
       //var path = window.getComputedStyle(replacedDivs[i]).getPropertyValue('background-image');
       var path = replacedDivs[i].style.backgroundImage;
       // get old ratio
@@ -632,6 +641,23 @@ function updateImgTypeOther()
       var newrl = "url("+chrome.extension.getURL("/images/" + folder + "/" + chosenBo + "/" + ratio + ".jpg") + ")";
       // set bg image to new url
       replacedDivs[i].setAttribute('style', "background-image: "+newrl);
+    }
+  }
+  var replacedLinks = document.querySelectorAll("a[old-source]");
+  for (var j = replacedLinks.length - 1; j >= 0; j--)
+  {
+    if (replacedLinks[j].getAttribute("old-source") != "none")
+    {
+      // get bg image path
+      var pathL = replacedLinks[j].style.backgroundImage;
+      // get old ratio
+      var ratioRegexL = new RegExp("(\\dx\\d)");
+      // if attribute contains src
+      var ratioL = pathL.match(ratioRegexL)[0];
+      var chosenBoL = imgList[Math.floor(Math.random() * imgList.length)];
+      var newrlL = "url("+chrome.extension.getURL("/images/" + folder + "/" + chosenBoL + "/" + ratioL + ".jpg") + ")";
+      // set bg image to new url
+      replacedLinks[j].setAttribute('style', "background-image: "+newrlL);
     }
   }
 }
@@ -658,7 +684,7 @@ chrome.storage.onChanged.addListener(function(changes, namespace) {
 
 /* Run Code */
 
-findTrumps();
+//findTrumps();
 //window.addEventListener('load', findTrumps, false);
 //window.addEventListener("DOMContentLoaded", findTrumps);
 
