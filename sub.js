@@ -8,6 +8,7 @@
  *   - check text enclosed by links <a> example trump .... </a>?
  *   - make some kind of options or info page (include option of replacement image, ability to turn off script for site/page) -- In Progress
  *   - deal with links that have direct parents or children with background images
+ *   - make option images trigger radio button change
  * 
  * KNOWN "BUGS":
  *   - can't handle images inserted by scripts e.g. twitter avatar
@@ -15,7 +16,6 @@
  *     (trump doesn't appear in src or alt, no surrounding link -- maybe look for closest <p></p>?)
  *   - link w/in div that has a background image doesn't work for context menu replace?? (maybe)
  *   - context replace doesn't seem to work for page that's been idle for awhile (replacement happens in src but isn't reflected in display)
- *   - option page changes not reflected in context replace
  */
 
 /* Globals: */
@@ -106,8 +106,9 @@ function checkFigCap(image)
  * code help from http://stackoverflow.com/questions/4952337/quickly-select-all-elements-with-css-background-image */
 function checkTagBackgrounds(tag)
 {
-
   addJQ();
+
+  var toUpdate = [];
   // get new url
   var chosenBo = imgList[Math.floor(Math.random() * imgList.length)];
 
@@ -131,18 +132,38 @@ function checkTagBackgrounds(tag)
     {
       // check for trumpishness
       var backImg = $(this).css('background-image');
+      var oldrl = backImg;
       var trumpRegex = new RegExp("(trump)");
       var lower = backImg.toLowerCase();
       if (lower.match(trumpRegex)) {console.log(backImg);}
       if (tag == 'a' || lower.match(trumpRegex))
       {
-        return lower.match(trumpRegex);
+        var matched = lower.match(trumpRegex);
+        if (matched)
+        {
+          // save old source
+          if ($(this).attr("old-source") == "none" || !$(this).attr("old-source"))
+          {
+            $(this).attr("old-source", backImg);
+          }
+        }
+        // set url if trumpy
+        return matched;
       }
       // check closest link for divs with background images that aren't trumpy
       else
       {
         // check closest link
-        return checkLink($(this));
+        var link = checkLink($(this));
+        if (link)
+        {
+          if ($(this).attr("old-source") == "none" || !$(this).attr("old-source"))
+          {
+            $(this).attr("old-source", backImg);
+          }
+        }
+        // set url if nearest link is trumpy
+        return link;
       }
     }
   }).css('background-image', newrl);
@@ -545,10 +566,75 @@ chrome.extension.onMessage.addListener(function (message, sender, callback) {
       var type = message.imgType;
       console.log(type);
       console.log(imageTypes[type]);
-      folder = imageTypesList[imageTypes[message.imgType]].folder;
-      imgList = imageTypesList[imageTypes[message.imgType]].imgList;
+      //folder = imageTypesList[imageTypes[message.imgType]].folder;
+      //imgList = imageTypesList[imageTypes[message.imgType]].imgList;
     }
 });
+
+/* Updates replaced images with new selected image type*/
+function updateImgType()
+{
+  var replacedImages = document.querySelectorAll("img[old-source]");
+  for (var i = replacedImages.length - 1; i >= 0; i--) {
+    if (replacedImages[i].getAttribute("old-source") != "none")
+    {
+      var path = replacedImages[i].src;
+      // get old ratio
+      var ratioRegex = new RegExp("(\\dx\\d)");
+      // if attribute contains src
+      var ratio = path.match(ratioRegex)[0];
+      var chosenBo = imgList[Math.floor(Math.random() * imgList.length)];
+      var newrl = chrome.extension.getURL("/images/" + folder + "/" + chosenBo + "/" + ratio + ".jpg");
+
+      // find and replace attributes containing src
+      for (var att, k = 0, atts = replacedImages[i].attributes, n = atts.length; k < n; k++)
+      {
+        att = atts[k];
+        // check if attribute contains 'src'
+        var srcRegex = new RegExp("(src)");
+        var lower = att.nodeName.toLowerCase();
+        // if attribute contains src
+        if (lower.match(srcRegex))
+        {
+          if (lower == "srcset")
+            {
+              // get urls from srcset value
+              var expression = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?/gi;
+              var urlRegex = new RegExp(expression);
+              att.nodeValue = att.nodeValue.replace(urlRegex, newrl);
+            }
+            else
+            {
+              replacedImages[i].setAttribute(att.nodeName, newrl);
+            }
+        }
+      }
+    }
+  }
+}
+
+/* Updates replaced images with new selected image type*/
+function updateImgTypeOther()
+{
+  var replacedDivs = document.querySelectorAll("div[old-source]");
+  for (var i = replacedDivs.length - 1; i >= 0; i--)
+  {
+    if (replacedDivs[i].getAttribute("old-source") != "none")
+    {
+      // TODO get bg image path
+      //var path = window.getComputedStyle(replacedDivs[i]).getPropertyValue('background-image');
+      var path = replacedDivs[i].style.backgroundImage;
+      // get old ratio
+      var ratioRegex = new RegExp("(\\dx\\d)");
+      // if attribute contains src
+      var ratio = path.match(ratioRegex)[0];
+      var chosenBo = imgList[Math.floor(Math.random() * imgList.length)];
+      var newrl = "url("+chrome.extension.getURL("/images/" + folder + "/" + chosenBo + "/" + ratio + ".jpg") + ")";
+      // set bg image to new url
+      replacedDivs[i].setAttribute('style', "background-image: "+newrl);
+    }
+  }
+}
 
 // turn off caching 
 var textnode = document.createTextNode("<meta http-equiv='Cache-Control' content='no-cache, no-store, must-revalidate' />");
@@ -564,7 +650,9 @@ chrome.storage.onChanged.addListener(function(changes, namespace) {
     var storageChange = changes[key];
     folder = imageTypesList[imageTypes[storageChange.newValue]].folder;
     imgList = imageTypesList[imageTypes[storageChange.newValue]].imgList;
-    findTrumps();
+    // replace existing replacements
+    updateImgType();
+    updateImgTypeOther();
   }
 });
 
