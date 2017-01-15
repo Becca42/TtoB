@@ -4,20 +4,19 @@
  "browser_action" field in manifest.json contains the "default_popup" key with
  value "popup.html".
  -->
-<html>
+<html style="min-width:200px;">
   <head>
     <title>You're Fired Popup</title>
     <style>
       body {
         font-family: "Segoe UI", "Lucida Grande", Tahoma, sans-serif;
         font-size: 100%;
+        width: 200%;
       }
-      #status {
-        /* avoid an excessively wide status text */
-        white-space: pre;
-        text-overflow: ellipsis;
-        overflow: hidden;
-        max-width: 400px;
+
+      button {
+        margin-left: 2%;
+        margin-bottom: 2%;
       }
     </style>
 
@@ -31,16 +30,13 @@
   </head>
 
   <body>
-    <div> 
-      Image Type Select
-      <p><form>
-        <input type="radio" checked="true" name="imageTypes" id="BO">Bo</input> <br>
-        <input type="radio" name="imageTypes" id="FLAG">Flag</input> <br>
-        <input type="radio" name="imageTypes" id="TROMPET">Trumpet</input> 
-      </form></p>
-     </div>
-
-    <div> Stop Blocking on This Site? </div>
+    <h2>You're Fired</h2>
+    <div id="pause">
+      <button id="pauseB" style="display:block;"> Pause Blocking? </button>
+    </div>
+    <div id="start">
+      <button id="startB" style="display:none;"> Resume Blocking? </button>
+    </div>
   </body>
 </html>
 

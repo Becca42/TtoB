@@ -7,13 +7,13 @@
  *   - keyboard shortcut to replace images
  *   - check text enclosed by links <a> example trump .... </a>?
  *   - make some kind of options or info page (include option of replacement image, ability to turn off script for site/page) -- In Progress
- *   - deal with links that have direct parents or children with background images
+ *   - deal with links that have direct parents or children with background images (a)
  * 
  * KNOWN "BUGS":
  *   - can't handle images inserted by scripts e.g. twitter avatar
  *   - fix problems like this page - http://www.npr.org/2016/12/28/507305600/trump-speaks-briefly-to-reporters-reversing-obama-criticism-and-touting-new-jobs
  *     (trump doesn't appear in src or alt, no surrounding link -- maybe look for closest <p></p>?)
- *   - link w/in div that has a background image doesn't work for context menu replace
+ *   - (a) link w/in div that has a background image doesn't work for context menu replace
  *   - context replace doesn't seem to work for page that's been idle for awhile (replacement happens in src but isn't reflected in display)
  */
 
