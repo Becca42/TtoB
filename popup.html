@@ -14,9 +14,15 @@
         width: 200%;
       }
 
+      img {
+        display: inline-block;
+      }
+
       button {
         margin-left: 2%;
-        margin-bottom: 2%;
+        margin-bottom: 8%;
+        margin-top: 4%;
+        font-size: 100%;
       }
     </style>
 
@@ -30,13 +36,22 @@
   </head>
 
   <body>
-    <h2>You're Fired</h2>
-    <div id="pause">
-      <button id="pauseB" style="display:block;"> Pause Blocking? </button>
+    <h2>You're Fired
+    <img src="" id="icon" width="25px" height="25px" />
+    </h2>
+    <div id="pause" style="display:block;">
+      Pause blocking <br> on this site
+      <br>
+      <button id="pauseB" > Pause </button>
     </div>
-    <div id="start">
-      <button id="startB" style="display:none;"> Resume Blocking? </button>
+    <div id="start" style="display:block;">
+      Resume blocking <br> on this site
+      <br>
+      <button id="startB" > Resume </button>
     </div>
+
+    <div id="status"></div>
+
   </body>
 </html>
 

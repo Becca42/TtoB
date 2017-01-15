@@ -6,7 +6,7 @@
  *   - deal with <picture> tag?
  *   - keyboard shortcut to replace images
  *   - check text enclosed by links <a> example trump .... </a>?
- *   - make some kind of options or info page (include option of replacement image, ability to turn off script for site/page) -- In Progress
+ *   - make some kind of options  to turn off script for site/page -- In Progress *save choices to storage and load displayed divs based on choices, actually stop/start script*
  *   - deal with links that have direct parents or children with background images (a)
  * 
  * KNOWN "BUGS":
