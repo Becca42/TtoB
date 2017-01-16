@@ -654,7 +654,7 @@ function updateImgTypeOther()
       //var path = window.getComputedStyle(replacedDivs[i]).getPropertyValue('background-image');
       var path = replacedDivs[i].style.backgroundImage;
       // get old ratio
-      var ratioRegex = new RegExp("(\\dx\\d)");
+      var ratioRegex = new RegExp("(\\d+x\\d+)");
       // if attribute contains src
       var ratio = path.match(ratioRegex)[0];
       var chosenBo = imgList[Math.floor(Math.random() * imgList.length)];
@@ -671,7 +671,7 @@ function updateImgTypeOther()
       // get bg image path
       var pathL = replacedLinks[j].style.backgroundImage;
       // get old ratio
-      var ratioRegexL = new RegExp("(\\dx\\d)");
+      var ratioRegexL = new RegExp("(\\d+x\\d+)");
       // if attribute contains src
       var ratioL = pathL.match(ratioRegexL)[0];
       var chosenBoL = imgList[Math.floor(Math.random() * imgList.length)];
