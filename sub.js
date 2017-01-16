@@ -6,8 +6,9 @@
  *   - deal with <picture> tag?
  *   - keyboard shortcut to replace images
  *   - check text enclosed by links <a> example trump .... </a>?
- *   - make some kind of options  to turn off script for site/page -- In Progress *save choices to storage and load displayed divs based on choices, actually stop/start script*
+ *   - make some kind of options  to turn off script for site/page -- In Progress *TODO: actually stop/start script*
  *   - deal with links that have direct parents or children with background images (a)
+ *   - WMW posters as replacement images?
  * 
  * KNOWN "BUGS":
  *   - can't handle images inserted by scripts e.g. twitter avatar
@@ -38,6 +39,7 @@ var ratioList = [{dimensions: "9x16", val: 0.5625}, {dimensions: "4x6", val: 0.6
 var imageTypesList = [{folder: "bo_images", imgList: boList}, {folder: "flag_images", imgList: flagList}, {folder: "trompet_images", imgList: trompetList}];
 var selected = "BO";
 chrome.storage.sync.get("imgType", function (type) {
+  console.log(type.imgType);
   selected = type.imgType;
   console.log(type);
   folder = imageTypesList[imageTypes[selected]].folder;
@@ -587,9 +589,28 @@ function updateImgType()
     if (replacedImages[i].getAttribute("old-source") != "none")
     {
       var path = replacedImages[i].src;
+      // check for other src containing attributes if no src
+      if (!path)
+      {
+        //get src-containing attribute
+        for (var attr, j = 0, attrs = replacedImages[i].attributes, m = attrs.length; j < m; j++)
+        {
+          attr = attrs[j];
+          // check if attribute contains 'src'
+          var srcregex = new RegExp("(src)");
+          var lowered = attr.nodeName.toLowerCase();
+          // if attribute contains src
+          if (lowered.match(srcregex))
+          {
+            path = attr.nodeValue;
+            break;
+          }
+        }
+      }
       // get old ratio
-      var ratioRegex = new RegExp("(\\dx\\d)");
+      var ratioRegex = new RegExp("(\\d+x\\d+)");
       // if attribute contains src
+      
       var ratio = path.match(ratioRegex)[0];
       var chosenBo = imgList[Math.floor(Math.random() * imgList.length)];
       var newrl = chrome.extension.getURL("/images/" + folder + "/" + chosenBo + "/" + ratio + ".jpg");
@@ -672,12 +693,17 @@ document.getElementsByTagName('head')[0].appendChild(textnode2);
 /* Options Code */
 chrome.storage.onChanged.addListener(function(changes, namespace) {
   for (var key in changes) {
-    var storageChange = changes[key];
-    folder = imageTypesList[imageTypes[storageChange.newValue]].folder;
-    imgList = imageTypesList[imageTypes[storageChange.newValue]].imgList;
-    // replace existing replacements
-    updateImgType();
-    updateImgTypeOther();
+    console.log(key);
+    if (key == 'imgType')
+    {
+      console.log('here');
+      var storageChange = changes[key];
+      folder = imageTypesList[imageTypes[storageChange.newValue]].folder;
+      imgList = imageTypesList[imageTypes[storageChange.newValue]].imgList;
+      // replace existing replacements
+      updateImgType();
+      updateImgTypeOther();
+    }
   }
 });
 
