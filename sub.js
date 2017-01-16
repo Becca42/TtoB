@@ -6,9 +6,10 @@
  *   - deal with <picture> tag?
  *   - keyboard shortcut to replace images
  *   - check text enclosed by links <a> example trump .... </a>?
- *   - make some kind of options  to turn off script for site/page -- In Progress *TODO: actually stop/start script*
  *   - deal with links that have direct parents or children with background images (a)
  *   - WMW posters as replacement images?
+ *   - change pause/resume to be by site/domain not page url
+ *   - hash blocked pages
  * 
  * KNOWN "BUGS":
  *   - can't handle images inserted by scripts e.g. twitter avatar
@@ -38,15 +39,38 @@ var ratioList = [{dimensions: "9x16", val: 0.5625}, {dimensions: "4x6", val: 0.6
 // which photos to use
 var imageTypesList = [{folder: "bo_images", imgList: boList}, {folder: "flag_images", imgList: flagList}, {folder: "trompet_images", imgList: trompetList}];
 var selected = "BO";
+
+//blocking status;
+var paused;
+
 chrome.storage.sync.get("imgType", function (type) {
   console.log(type.imgType);
   selected = type.imgType;
   console.log(type);
   folder = imageTypesList[imageTypes[selected]].folder;
   imgList = imageTypesList[imageTypes[selected]].imgList;
-
-  findTrumps();
+  // check for blocking
+  // get window url
+  var url = window.location.href;
+  // get blocking status from storage
+  chrome.storage.sync.get("blocking", function (item) {
+    var blockList = item.blocking;
+    console.log(Object.keys(blockList));
+    // if url in list of pages with blocking paused
+    console.log("url: "+url);
+    if (url in blockList)
+    {
+      paused = true;
+    }
+    else
+    {
+      paused = false;
+      findTrumps();
+      console.log("paused: "+paused);
+    }
+  });
 });
+
 var folder = imageTypesList[imageTypes[selected]].folder;
 var imgList = imageTypesList[imageTypes[selected]].imgList;
 
@@ -57,6 +81,12 @@ function addJQ()
   script.src = 'http://code.jquery.com/jquery-1.11.0.min.js';
   script.type = 'text/javascript';
   document.getElementsByTagName('head')[0].appendChild(script);
+}
+
+/* enacts response when a page's blocking status has been changed */
+function blockingChanged(url, blocking)
+{
+  // TODO refresh page
 }
 
 /* returns true if the src of image matches a regex for trump */
@@ -690,7 +720,7 @@ document.getElementsByTagName('head')[0].appendChild(textnode);
 document.getElementsByTagName('head')[0].appendChild(textnode1);
 document.getElementsByTagName('head')[0].appendChild(textnode2);
 
-/* Options Code */
+/* Storage/Options (page and popup) Code */
 chrome.storage.onChanged.addListener(function(changes, namespace) {
   for (var key in changes) {
     console.log(key);
@@ -701,16 +731,26 @@ chrome.storage.onChanged.addListener(function(changes, namespace) {
       folder = imageTypesList[imageTypes[storageChange.newValue]].folder;
       imgList = imageTypesList[imageTypes[storageChange.newValue]].imgList;
       // replace existing replacements
-      updateImgType();
-      updateImgTypeOther();
+      if (!paused)
+      {
+        updateImgType();
+        updateImgTypeOther();
+      }
+    }
+    else if (key == 'blocking')
+    {
+      console.log("blocking triggered");
+      console.log(changes[key]);
+      // determine if pausing has been stated or stopped for given page and act accordingly
+      if (Object.keys(changes[key].newValue).length > Object.keys(changes[key].oldValue).length)
+      {
+        console.log("resume");
+      }
+      else
+      {
+        console.log("pause");
+      }
+      location.reload();
     }
   }
 });
-
-/* Run Code */
-
-//findTrumps();
-//window.addEventListener('load', findTrumps, false);
-//window.addEventListener("DOMContentLoaded", findTrumps);
-
-//setTimeout(findTrumps, 5000);
