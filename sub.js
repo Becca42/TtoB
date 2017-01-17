@@ -10,7 +10,6 @@
  *   - WMW posters as replacement images?
  *   - hash blocked pages
  *   - add better styling to popup
- *   - run script on icon click OR add button to popup to rerun script
  * 
  * KNOWN "BUGS":
  *   - can't handle images inserted by scripts e.g. twitter avatar

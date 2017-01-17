@@ -1,7 +1,3 @@
-chrome.browserAction.onClicked.addListener(function(tab) {
-    chrome.tabs.executeScript(null, {file: "sub.js"});
-});
-
 /* Options Code */
 function imgSelect(e) {
 	console.log("help");

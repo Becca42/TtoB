@@ -96,6 +96,10 @@ function start() {
     });
   });
 }
+/* run blocking script on icon-click */
+function runScript() {
+  chrome.tabs.executeScript(null, {file: "sub.js"});
+}
 
 document.addEventListener('DOMContentLoaded', function () {
   // get current page url
@@ -141,6 +145,10 @@ document.addEventListener('DOMContentLoaded', function () {
     var optURL = chrome.extension.getURL("options.html");
     document.getElementById("options").href = optURL;
 
+    // TODO onclick listener for run sub.js
+    document.getElementById('runB').addEventListener('click', runScript);
   });
   // TODO load display div by storage options
 });
+
+
