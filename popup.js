@@ -28,6 +28,13 @@ function imgSelect(r) {
   }
 }
 
+/* returns string that is website/domain of given url */
+function getWebsite(url)
+{
+  var webRegex = new RegExp("(https?:\/\/(\\w+)(\\.\\w{2,})+\/?)");
+  return url.match(webRegex)[0];
+}
+
 function pause() {
   // get old blocking list
   var blockList;
@@ -37,7 +44,7 @@ function pause() {
     // get current page url
     var url;
     chrome.tabs.query({currentWindow: true, active: true}, function(tabs){
-      url = tabs[0].url;
+      url = getWebsite(tabs[0].url);
     
       // set current url to blocked in list
       blockList[url] = "blocked";
@@ -68,7 +75,7 @@ function start() {
     // get current page url
     var url;
     chrome.tabs.query({currentWindow: true, active: true}, function(tabs){
-      url = tabs[0].url;
+      url = getWebsite(tabs[0].url);
     
       // remove url from blocking list
       delete blockList[url];
@@ -94,41 +101,46 @@ document.addEventListener('DOMContentLoaded', function () {
   // get current page url
   var url;
   chrome.tabs.query({currentWindow: true, active: true}, function(tabs){
-    url = tabs[0].url;
-  });
-  // restore settings for this page
-  chrome.storage.sync.get(function(item) {
-    if (! item.blocking)
-    {
-      // init blocking if empty
-      chrome.storage.sync.set({
-      "blocking": {"init": "blank"},
-    }, function() {
-      document.getElementById('start').setAttribute('style', "display: none");
-      document.getElementById('pause').setAttribute('style', "display: block");
+    url = getWebsite(tabs[0].url);
+  
+    // restore settings for this page
+    chrome.storage.sync.get(function(item) {
+      if (! item.blocking)
+      {
+        // init blocking if empty
+        chrome.storage.sync.set({
+        "blocking": {"init": "blank"},
+      }, function() {
+        document.getElementById('start').setAttribute('style', "display: none");
+        document.getElementById('pause').setAttribute('style', "display: block");
+      });
+      }
+      else if (!(url in item.blocking))
+      {
+        document.getElementById('start').setAttribute('style', "display: none");
+        document.getElementById('pause').setAttribute('style', "display: block");
+      }
+      else if (item.blocking[url] == "blocked")
+      {
+        document.getElementById('start').setAttribute('style', "display: block");
+        document.getElementById('pause').setAttribute('style', "display: none");
+      }
+      else
+      {
+        document.getElementById('start').setAttribute('style', "display: none");
+        document.getElementById('pause').setAttribute('style', "display: block");
+      }
     });
-    }
-    else if (!(url in item.blocking))
-    {
-      document.getElementById('start').setAttribute('style', "display: none");
-      document.getElementById('pause').setAttribute('style', "display: block");
-    }
-    else if (item.blocking[url] == "blocked")
-    {
-      document.getElementById('start').setAttribute('style', "display: block");
-      document.getElementById('pause').setAttribute('style', "display: none");
-    }
-    else
-    {
-      document.getElementById('start').setAttribute('style', "display: none");
-      document.getElementById('pause').setAttribute('style', "display: block");
-    }
-  });
-  // load image
-  document.getElementById('icon').src = chrome.extension.getURL("/icons/icon-large.png");
-  // add listeners for button clicks
-  document.getElementById('pauseB').addEventListener('click', pause);
-  document.getElementById('startB').addEventListener('click', start);
+    // load image
+    document.getElementById('icon').src = chrome.extension.getURL("/icons/icon-large.png");
+    // add listeners for button clicks
+    document.getElementById('pauseB').addEventListener('click', pause);
+    document.getElementById('startB').addEventListener('click', start);
 
+    //set link for options
+    var optURL = chrome.extension.getURL("options.html");
+    document.getElementById("options").href = optURL;
+
+  });
   // TODO load display div by storage options
 });

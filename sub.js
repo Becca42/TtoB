@@ -8,8 +8,9 @@
  *   - check text enclosed by links <a> example trump .... </a>?
  *   - deal with links that have direct parents or children with background images (a)
  *   - WMW posters as replacement images?
- *   - change pause/resume to be by site/domain not page url
  *   - hash blocked pages
+ *   - add better styling to popup
+ *   - run script on icon click OR add button to popup to rerun script
  * 
  * KNOWN "BUGS":
  *   - can't handle images inserted by scripts e.g. twitter avatar
@@ -51,7 +52,7 @@ chrome.storage.sync.get("imgType", function (type) {
   imgList = imageTypesList[imageTypes[selected]].imgList;
   // check for blocking
   // get window url
-  var url = window.location.href;
+  var url = getWebsite(window.location.href);
   // get blocking status from storage
   chrome.storage.sync.get("blocking", function (item) {
     var blockList = item.blocking;
@@ -73,6 +74,13 @@ chrome.storage.sync.get("imgType", function (type) {
 
 var folder = imageTypesList[imageTypes[selected]].folder;
 var imgList = imageTypesList[imageTypes[selected]].imgList;
+
+/* returns string that is website/domain of given url */
+function getWebsite(url)
+{
+  var webRegex = new RegExp("(https?:\/\/(\\w+)(\\.\\w{2,})+\/?)");
+  return url.match(webRegex)[0];
+}
 
 /* add JQuery to document -- code from stackoverflow*/
 function addJQ()
