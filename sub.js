@@ -7,9 +7,8 @@
  *   - keyboard shortcut to replace images
  *   - check text enclosed by links <a> example trump .... </a>?
  *   - deal with links that have direct parents or children with background images (a)
- *   - WMW posters as replacement images?
+ *   - WMW posters as replacement images? -- waiting on response to email sent 1/16
  *   - hash blocked pages
- *   - add better styling to popup
  * 
  * KNOWN "BUGS":
  *   - can't handle images inserted by scripts e.g. twitter avatar
@@ -17,6 +16,7 @@
  *     (trump doesn't appear in src or alt, no surrounding link -- maybe look for closest <p></p>?)
  *   - (a) link w/in div that has a background image doesn't work for context menu replace
  *   - context replace doesn't seem to work for page that's been idle for awhile (replacement happens in src but isn't reflected in display)
+ *   - weird space between image border and div in option (seen when hovering)
  */
 
 /* Globals: */
@@ -43,20 +43,24 @@ var selected = "BO";
 //blocking status;
 var paused;
 
+// get image type to use
 chrome.storage.sync.get("imgType", function (type) {
   console.log(type.imgType);
   selected = type.imgType;
   console.log(type);
+  // set image type to use for replacement
   folder = imageTypesList[imageTypes[selected]].folder;
   imgList = imageTypesList[imageTypes[selected]].imgList;
+
   // check for blocking
+
   // get window url
   var url = getWebsite(window.location.href);
   // get blocking status from storage
   chrome.storage.sync.get("blocking", function (item) {
     var blockList = item.blocking;
     console.log(Object.keys(blockList));
-    // if url in list of pages with blocking paused
+    // if url in list of pages with blocking then pause (don't run)
     console.log("url: "+url);
     if (url in blockList)
     {

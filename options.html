@@ -5,87 +5,147 @@
   <style type="text/css">
 
     body {
-      background-color: #ebeef4;
+      /*background-color: #2b4355; scheme1: navy*/
+      background-color: black;
+      font-family: "Segoe UI", "Lucida Grande", Tahoma, sans-serif;
     }
 
     #title {
-      margin: auto;
-      display: block;
     }
 
     h1 {
-      text-align: center; /* TODO get it actually cenetred */
       margin-top: 5%;
-      font-size: 400%;
+      font-size: 300%;
+      /*color: #e9565a; scheme1: salmon*/ 
+      color: white;
     }
 
     h2 {
       font-size: 200%;
+      /*color: #e9565a; scheme1: salmon*/ 
+      color: white;
     }
 
-    #content {
-      margin: auto;
+    #content_body {
       width: 70%;
-      padding: 5%;
-      border-radius: 25px;
-      background-color: #fcfdff;
+      margin-left: 10%;
     }
 
-    #content img {
-      border-radius: 25px;
+    .content {
+      /*background-color: #f8f0d3; scheme1: offwhite*/
+      padding-bottom: 1%;
+      padding-right: 0px !important;
     }
 
-    #content label {
+    .content img {
+      border: 8px solid white;
+    }
+
+    .content label {
       font-size: large;
+      color: white;
+      margin-top: 2%;
     }
 
-    #content input {
+    .content input {
       font-size: large;
-    }
-
-    #content button {
-      font-size: 150%;
     }
 
     #status {
       font-size: 200%;
-      color: blue;
-      margin-top: 2%;
+      /*color: #e9565a; scheme1: salmon*/ 
+      color: white;
+      margin-top: 4%;
       margin-bottom: 4%;
     }
 
-    form div {
-      display: inline-block;
-      padding: 2%;
-      padding-right: 4%;
+    #options {
+      text-align: justify;
+      margin: auto;
     }
+
+    #options div {
+      display: inline-block;
+      margin-right: 8%;
+      padding-right: 0px;
+    }
+
+    /* Hover Styles */
+    #label_bo:hover {
+      background-color: white;
+    }
+
+    #label_bo:hover label{
+      color: black !important;
+    }
+
+    #label_flag:hover {
+      background-color: white;
+    }
+
+    #label_flag:hover label{
+      color: black !important;
+    }
+
+    #label_trompet:hover {
+      background-color: white;
+    }
+
+    #label_trompet:hover label{
+      color: black !important;
+    }
+
+    /* Button Styles */
+
+    button {
+      /*background-color: #2b4355; scheme1: navy*/
+      background-color: black;
+      color: white;
+      border: 1px solid white;
+      padding: 1% 2% 1% 2%;
+      font-size: 22px;
+    }
+
+    button:hover {
+      /*background-color: #2b4355; scheme1: navy*/
+      background-color: white;
+      color: black;
+      border: 1px solid white;
+      padding: 1% 2% 1% 2%;
+      font-size: 22px;
+    }
+
+    /* JJ Style ;) */
 
   </style>
 </head>
 <body>
 
+<div id="content_body">
 <div id="title">
   <h1>You're Fired: A Trump Management System</h1>
 </div>
 
-<div id="content"> 
-<h2>Image Type Select</h2>
-<p><form id="img_select">
-  <div>
-    <img src="" id="BO_IMG" height="150px" width="150px")/> <br>
-    <input type="radio" checked="true" name="imageTypes" id="BO" /><label>Bo</label>
+  <h2>Image Type Select</h2>
+  <p><form id="img_select">
+    <div id="options">
+      <div class="content" id="label_bo">
+        <img src="" id="BO_IMG" height="150px" width="150px")/> <br>
+        <input type="radio" checked="true" name="imageTypes" id="BO" /><label>Bo</label>
+      </div>
+      <div class="content" id="label_flag">
+        <img src="" id="FLAG_IMG" height="150px" width="150px")/> <br>
+        <input type="radio" name="imageTypes" id="FLAG"/><label>Flag</label>
+      </div>
+      <div class="content" id="label_trompet">
+        <img src="" id="TROMP_IMG" height="150px" width="150px")/> <br>
+        <input type="radio" name="imageTypes" id="TROMPET"/><label>Trumpet</label>
+      </div>
+    </div>
+  </form></p>
+  <div id="status"></div>
+  <button id="save"> Save </button>
   </div>
-  <div>
-    <img src="" id="FLAG_IMG" height="150px" width="150px")/> <br>
-    <input type="radio" name="imageTypes" id="FLAG"/><label>Flag</label>
-  </div>
-  <div>
-    <img src="" id="TROMP_IMG" height="150px" width="150px")/> <br>
-    <input type="radio" name="imageTypes" id="TROMPET"/><label>Trumpet</label>
-  </div>
-</form></p>
-<div id="status"></div>
-<button id="save"> Save </button>
 </div>
 
 <script src="options.js"></script>

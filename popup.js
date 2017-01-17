@@ -98,6 +98,12 @@ function start() {
 }
 /* run blocking script on icon-click */
 function runScript() {
+  // show text to make it seem like something is happening
+  var runText = document.getElementById('run-text');
+  runText.textContent = 'Removing Trumps.';
+  setTimeout(function() {
+    runText.textContent = '';
+  }, 900);
   chrome.tabs.executeScript(null, {file: "sub.js"});
 }
 
