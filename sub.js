@@ -4,7 +4,6 @@
  *
  * TODO:
  *   - deal with <picture> tag?
- *   - keyboard shortcut to replace images
  *   - check text enclosed by links <a> example trump .... </a>?
  *   - deal with links that have direct parents or children with background images (a)
  *   - WMW posters as replacement images? -- waiting on response to email sent 1/16
@@ -43,37 +42,45 @@ var selected = "BO";
 //blocking status;
 var paused;
 
-// get image type to use
-chrome.storage.sync.get("imgType", function (type) {
-  console.log(type.imgType);
-  selected = type.imgType;
-  console.log(type);
-  // set image type to use for replacement
-  folder = imageTypesList[imageTypes[selected]].folder;
-  imgList = imageTypesList[imageTypes[selected]].imgList;
+/* TODO */
+function run()
+{
+  // get image type to use
+  chrome.storage.sync.get({
+      imgType: 'BO',
+    }, function (type) {
+    console.log(type.imgType);
+    selected = type.imgType;
+    console.log(type);
+    // set image type to use for replacement
+    folder = imageTypesList[imageTypes[selected]].folder;
+    imgList = imageTypesList[imageTypes[selected]].imgList;
 
-  // check for blocking
+    // check for blocking
 
-  // get window url
-  var url = getWebsite(window.location.href);
-  // get blocking status from storage
-  chrome.storage.sync.get("blocking", function (item) {
-    var blockList = item.blocking;
-    console.log(Object.keys(blockList));
-    // if url in list of pages with blocking then pause (don't run)
-    console.log("url: "+url);
-    if (url in blockList)
-    {
-      paused = true;
-    }
-    else
-    {
-      paused = false;
-      findTrumps();
-      console.log("paused: "+paused);
-    }
+    // get window url
+    var url = getWebsite(window.location.href);
+    // get blocking status from storage
+    chrome.storage.sync.get({
+      blocking: {},
+    }, function (item) {
+      var blockList = item.blocking;
+      console.log(Object.keys(blockList));
+      // if url in list of pages with blocking then pause (don't run)
+      console.log("url: "+url);
+      if (url in blockList)
+      {
+        paused = true;
+      }
+      else
+      {
+        paused = false;
+        findTrumps();
+        console.log("paused: "+paused);
+      }
+    });
   });
-});
+}
 
 var folder = imageTypesList[imageTypes[selected]].folder;
 var imgList = imageTypesList[imageTypes[selected]].imgList;
@@ -97,7 +104,7 @@ function addJQ()
 /* enacts response when a page's blocking status has been changed */
 function blockingChanged(url, blocking)
 {
-  // TODO refresh page
+  // TODO refresh page -- delete this?
 }
 
 /* returns true if the src of image matches a regex for trump */
@@ -368,7 +375,7 @@ function findTrumps()
   checkTagBackgrounds('div');
 }
 
-/* replaces image with and image of Bo Obama -- not used */
+/* replaces image with and image of Bo Obama -- not used DELTE THIS */
 function replace(image)
 {
   // choose random Bo
@@ -590,36 +597,47 @@ function revertLink(i)
 
 /* (context menu) message listener */
 chrome.extension.onMessage.addListener(function (message, sender, callback) {
-    if (message.functiontoInvoke == "replaceSrcContext") {
-      if (message.info.srcUrl)
-      {
-        replaceSrcContext(message.info);
-      }
-      else
-      {
-        // TODO go somewhere else for links
-        replaceLinkContext(message.info);
-      }
-    }
-    if (message.functiontoInvoke == "revertImage") {
-      if (message.info.srcUrl)
-      {
-        revertImage(message.info);
-      }
-      else
-      {
-        // TODO go somewhere else for links
-        revertLink(message.info);
-      }
-    }
-    if (message.functiontoInvoke == "changeImageType")
+  // context menu replace message handler
+  if (message.functiontoInvoke == "replaceSrcContext") {
+    if (message.info.srcUrl)
     {
-      var type = message.imgType;
-      console.log(type);
-      console.log(imageTypes[type]);
-      //folder = imageTypesList[imageTypes[message.imgType]].folder;
-      //imgList = imageTypesList[imageTypes[message.imgType]].imgList;
+      replaceSrcContext(message.info);
     }
+    else
+    {
+      // TODO go somewhere else for links
+      replaceLinkContext(message.info);
+    }
+  }
+  // context menu revert message handler
+  else if (message.functiontoInvoke == "revertImage") {
+    if (message.info.srcUrl)
+    {
+      revertImage(message.info);
+    }
+    else
+    {
+      revertLink(message.info);
+    }
+  }
+  // options menu message handler
+  else if (message.functiontoInvoke == "changeImageType")
+  {
+    var type = message.imgType;
+    console.log(type);
+    console.log(imageTypes[type]);
+    //folder = imageTypesList[imageTypes[message.imgType]].folder;
+    //imgList = imageTypesList[imageTypes[message.imgType]].imgList;
+  }
+  // keyboard shortcut replace message handler
+  else if (message.functiontoInvoke == "runCode")
+  {
+    console.log(message.info);
+    if (message.info == "replace-trumps")
+    {
+      run();
+    }
+  }
 });
 
 /* Updates replaced images with new selected image type*/
@@ -765,3 +783,6 @@ chrome.storage.onChanged.addListener(function(changes, namespace) {
     }
   }
 });
+
+/* Run Code */
+run();

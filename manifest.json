@@ -16,8 +16,34 @@
     "https://ajax.googleapis.com/",
     "contextMenus",
     "tabs",
-    "storage"
+    "storage",
+    "commands"
   ],
+
+   "commands": {
+    "replace-trumps": {
+      "suggested_key": {
+        "default": "Alt+Y",
+        "mac": "Alt+Y"
+      },
+      "description": "Find and Replace Trumps"
+    },
+    "_execute_browser_action": {
+      "suggested_key": {
+        "windows": "Ctrl+Shift+Y",
+        "mac": "Command+Shift+Y",
+        "chromeos": "Ctrl+Shift+U",
+        "linux": "Ctrl+Shift+J"
+      }
+    },
+    "_execute_page_action": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+E",
+        "windows": "Alt+Shift+P",
+        "mac": "Alt+Shift+P"
+      }
+    }
+  },
 
   "options_page": "options.html",
 
