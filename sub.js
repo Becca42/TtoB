@@ -620,14 +620,73 @@ function revertLink(i)
 /* looks if link represented by message information info has a child image and replace src in image if found */
 function findReplaceChildImage(info)
 {
-  //TODO look for child image
+  // look for child image
   var children = clickedEl.children;
   for (var i = children.length - 1; i >= 0; i--) {
     // if child is an image
     if (children[i].tagName == "IMG")
     {
-      // TODO replace src attributes in image
+      // replace src attributes in image
       findReplaceSRC(children[i]);
+    }
+  }
+}
+
+/* reverts given image if it has been replaced */
+function revertGivenImage(image)
+{
+  // chekc if image has been replaced yet
+  if (image.getAttribute('old-source') === "" || image.getAttribute('old-source') == 'none' || !image.getAttribute("old-source"))
+  {
+    console.log("hasn't been replaced");
+  }
+  else
+  {
+    // get old src
+    var oldrl = image.getAttribute('old-source');
+    // reset src
+    image.setAttribute('src', oldrl);
+    // check other src options on image
+    for (var att, k = 0, atts = image.attributes, n = atts.length; k < n; k++){
+      att = atts[k];
+      // check if attribute contains 'src'
+      var srcRegex = new RegExp("(src)");
+      var lower = att.nodeName.toLowerCase();
+      // if attribute contains src
+      if (lower.match(srcRegex))
+      {
+        console.log("found src tag");
+        if (lower == "srcset")
+          {
+            console.log('srcset');
+            // get urls from srcset value
+            var expression = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?/gi;
+            var urlRegex = new RegExp(expression);
+            att.nodeValue = att.nodeValue.replace(urlRegex, oldrl);
+          }
+          else
+          {
+            image.setAttribute(att.nodeName, oldrl);
+          }
+      }
+    }
+    // mark picture as original
+    image.setAttribute('old-source', "none");
+  }
+}
+
+/* finds and reverts child images of links */
+function findRevertChildImage(info)
+{
+  // get clicked element children
+  var children = clickedEl.children;
+  for (var i = children.length - 1; i >= 0; i--) {
+    // if child is an image
+    if (children[i].tagName == "IMG")
+    {
+      // TODO revert image
+      console.log("TODO revert img");
+      revertGivenImage(children[i]);
     }
   }
 }
@@ -656,7 +715,8 @@ chrome.extension.onMessage.addListener(function (message, sender, callback) {
     else
     {
       revertLink(message.info);
-      // TODO find and revert child image
+      // find and revert child image
+      findRevertChildImage(message.info);
     }
   }
   // options menu message handler
