@@ -8,7 +8,6 @@
  *   - deal with links that have direct parents or children with background images (a) -- esp. context replace
  *   - WMW posters as replacement images? -- waiting on response to email sent 1/16
  *   - check sibling element text for trumps
- *   - global pause -- In Progress
  *   - accessability
  * 
  * KNOWN "BUGS":
@@ -50,7 +49,13 @@ function run()
   // get image type to use
   chrome.storage.sync.get({
       imgType: 'BO',
+      pauseAll: 'false'
     }, function (type) {
+    if (type.pauseAll)
+    {
+      // don't run is pauseAll is set
+      return;
+    }
     console.log(type.imgType);
     selected = type.imgType;
     console.log(type);
