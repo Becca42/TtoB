@@ -5,10 +5,11 @@
  * TODO:
  *   - deal with <picture> tag?
  *   - check text enclosed by links <a> example trump .... </a>?
- *   - deal with links that have direct parents or children with background images (a)
+ *   - deal with links that have direct parents or children with background images (a) -- esp. context replace
  *   - WMW posters as replacement images? -- waiting on response to email sent 1/16
- *   - hash blocked pages -- In Progress
- *   - global pause
+ *   - check sibling element text for trumps
+ *   - global pause -- In Progress
+ *   - accessability
  * 
  * KNOWN "BUGS":
  *   - can't handle images inserted by scripts e.g. twitter avatar
@@ -793,12 +794,48 @@ chrome.storage.onChanged.addListener(function(changes, namespace) {
       // determine if pausing has been stated or stopped for given page and act accordingly
       if (Object.keys(changes[key].newValue).length > Object.keys(changes[key].oldValue).length)
       {
-        console.log("resume");
+        console.log("pause");
+        var hashedAddr;
+        for (var i = Object.keys(changes[key].newValue).length - 1; i >= 0; i--) {
+          hashedAddr = Object.keys(changes[key].newValue)[i];
+          if (!(hashedAddr in Object.keys(changes[key].oldValue)))
+          {
+            // TODO get current address
+            var url = getWebsite(window.location.href);
+            // TODO hash address
+            var hashedCurrent = getHash(url);
+            // reload page if current address is one added to blocking list
+            if (hashedCurrent == hashedAddr)
+            {
+              location.reload();
+            }
+          }
+        }
       }
       else
       {
-        console.log("pause");
+        console.log("resume");
+        var hashedAdd;
+        for (var j = Object.keys(changes[key].oldValue).length - 1; j >= 0; j--) {
+          hashedAdd = Object.keys(changes[key].oldValue)[j];
+          if (!(hashedAdd in Object.keys(changes[key].newValue)))
+          {
+            // get current address
+            var urlCurr = getWebsite(window.location.href);
+            // hash address
+            var hashedCurr = getHash(urlCurr);
+            // reload page if current address is one removed from blocking list
+            if (hashedCurr == hashedAdd)
+            {
+              location.reload();
+            }
+          }
+        }
       }
+    }
+    // change in global pausing
+    else if (key == 'pauseAll')
+    {
       location.reload();
     }
   }

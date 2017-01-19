@@ -90,6 +90,7 @@ function pause() {
   });
 }
 
+/*TODO*/
 function start() {
   // get old blocking list
   var blockList;
@@ -121,6 +122,47 @@ function start() {
     });
   });
 }
+
+/* sets 'pauseAll' to false in storage, shows both pause options and hides resume options*/
+function startG() {
+  chrome.storage.sync.set({
+    "pauseAll": false,
+  }, function() {
+    // show switching text
+    var status = document.getElementById('status');
+    status.textContent = 'Options saved.';
+    setTimeout(function() {
+      status.textContent = '';
+      // change buttons
+      document.getElementById('start').setAttribute('style', "display: none");
+      document.getElementById('pause').setAttribute('style', "display: block");
+      document.getElementById('pauseG').setAttribute('style', "display: block");
+      document.getElementById('startG').setAttribute('style', "display: none");
+    }, 900);
+  });
+}
+
+/* Sets 'pauseAll' to true in storage, hides other pausing options except resume all */
+function pauseG() {
+  // save options to storage
+  chrome.storage.sync.set({
+    "pauseAll": true,
+  }, function() {
+    // show switching text
+    var status = document.getElementById('status');
+    status.textContent = 'Options saved.';
+    setTimeout(function() {
+      status.textContent = '';
+      // change buttons
+      document.getElementById('start').setAttribute('style', "display: none");
+      document.getElementById('pause').setAttribute('style', "display: none");
+      document.getElementById('pauseG').setAttribute('style', "display: none");
+      document.getElementById('startG').setAttribute('style', "display: block");
+
+    }, 900);
+  });
+}
+
 /* run blocking script on icon-click */
 function runScript() {
   // show text to make it seem like something is happening
@@ -141,7 +183,23 @@ document.addEventListener('DOMContentLoaded', function () {
   
     // restore settings for this page
     chrome.storage.sync.get(function(item) {
-      if (! item.blocking)
+      // check for global pause to blocking
+      if (item.pauseAll)
+      {
+        // only show resume all options
+        document.getElementById('start').setAttribute('style', "display: none");
+        document.getElementById('pause').setAttribute('style', "display: none");
+        document.getElementById('pauseG').setAttribute('style', "display: none");
+        document.getElementById('startG').setAttribute('style', "display: block");
+
+        // check and see if blocking needs to be initialized
+        if (! item.blocking)
+        {
+          // init blocking if empty
+          chrome.storage.sync.set({"blocking": {"init": "blank"}, }, function() {});
+        }
+      }
+      else if (! item.blocking)
       {
         // init blocking if empty
         chrome.storage.sync.set({
@@ -149,22 +207,30 @@ document.addEventListener('DOMContentLoaded', function () {
       }, function() {
         document.getElementById('start').setAttribute('style', "display: none");
         document.getElementById('pause').setAttribute('style', "display: block");
+        document.getElementById('startG').setAttribute('style', "display: none");
+        document.getElementById('pauseG').setAttribute('style', "display: block");
       });
       }
       else if (!(url in item.blocking))
       {
         document.getElementById('start').setAttribute('style', "display: none");
         document.getElementById('pause').setAttribute('style', "display: block");
+        document.getElementById('startG').setAttribute('style', "display: none");
+        document.getElementById('pauseG').setAttribute('style', "display: block");
       }
       else if (item.blocking[url] == "blocked")
       {
         document.getElementById('start').setAttribute('style', "display: block");
         document.getElementById('pause').setAttribute('style', "display: none");
+        document.getElementById('startG').setAttribute('style', "display: none");
+        document.getElementById('pauseG').setAttribute('style', "display: block");
       }
       else
       {
         document.getElementById('start').setAttribute('style', "display: none");
         document.getElementById('pause').setAttribute('style', "display: block");
+        document.getElementById('startG').setAttribute('style', "display: none");
+        document.getElementById('pauseG').setAttribute('style', "display: block");
       }
     });
     // load image
@@ -172,6 +238,8 @@ document.addEventListener('DOMContentLoaded', function () {
     // add listeners for button clicks
     document.getElementById('pauseB').addEventListener('click', pause);
     document.getElementById('startB').addEventListener('click', start);
+    document.getElementById('pauseGB').addEventListener('click', pauseG);
+    document.getElementById('startGB').addEventListener('click', startG);
 
     //set link for options
     var optURL = chrome.extension.getURL("options.html");
