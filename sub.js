@@ -354,8 +354,6 @@ function findTrumps()
   {
     var found = false;
 
-    // TODO check enclosing div caption?
-
     // check alt text
     var inAlt = checkALT(images[i]);
 
@@ -363,8 +361,6 @@ function findTrumps()
     var inSRC = checkSRC(images[i]);
 
     // TODO check data-mediaviewer-caption?
-
-    // TODO deal with data-original?
 
     if (inSRC || inAlt)
     {
@@ -621,6 +617,21 @@ function revertLink(i)
   clickedEl.setAttribute('old-source', "none");
 }
 
+/* looks if link represented by message information info has a child image and replace src in image if found */
+function findReplaceChildImage(info)
+{
+  //TODO look for child image
+  var children = clickedEl.children;
+  for (var i = children.length - 1; i >= 0; i--) {
+    // if child is an image
+    if (children[i].tagName == "IMG")
+    {
+      // TODO replace src attributes in image
+      findReplaceSRC(children[i]);
+    }
+  }
+}
+
 /* (context menu) message listener */
 chrome.extension.onMessage.addListener(function (message, sender, callback) {
   // context menu replace message handler
@@ -631,8 +642,9 @@ chrome.extension.onMessage.addListener(function (message, sender, callback) {
     }
     else
     {
-      // TODO go somewhere else for links
       replaceLinkContext(message.info);
+      // look for child images
+      findReplaceChildImage(message.info);
     }
   }
   // context menu revert message handler
@@ -644,6 +656,7 @@ chrome.extension.onMessage.addListener(function (message, sender, callback) {
     else
     {
       revertLink(message.info);
+      // TODO find and revert child image
     }
   }
   // options menu message handler
