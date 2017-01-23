@@ -11,6 +11,7 @@
  *   - accessability
  * 
  * KNOWN "BUGS":
+ *   - need good defaults
  *   - can't handle images inserted by scripts e.g. twitter avatar
  *   - fix problems like this page - http://www.npr.org/2016/12/28/507305600/trump-speaks-briefly-to-reporters-reversing-obama-criticism-and-touting-new-jobs
  *     (trump doesn't appear in src or alt, no surrounding link -- maybe look for closest <p></p>?)
@@ -37,28 +38,27 @@ var flagList = ["flag_01", "flag_02", "flag_03", "flag_04", "flag_05", "flag_05"
 var ratioList = [{dimensions: "9x16", val: 0.5625}, {dimensions: "4x6", val: 0.666}, {dimensions: "8x10", val: 0.8}, {dimensions: "1x1", val: 1.0}, {dimensions: "5x4", val: 1.25}, {dimensions: "4x3", val: 1.33}, {dimensions: "3x2", val: 1.5}, {dimensions: "5x3", val: 1.67}, {dimensions: "16x9", val: 1.78}];
 
 // which photos to use
-var imageTypesList = [{folder: "bo_images", imgList: boList}, {folder: "flag_images", imgList: flagList}, {folder: "trompet_images", imgList: trompetList}];
+var imageTypesList = [{folder: "bo_images_low", imgList: boList}, {folder: "flag_images_low", imgList: flagList}, {folder: "trompet_images_low", imgList: trompetList}];
 var selected = "BO";
 
 //blocking status;
 var paused;
 
-/* TODO */
+/* run replacement code */
 function run()
 {
   // get image type to use
   chrome.storage.sync.get({
       imgType: 'BO',
-      pauseAll: 'false'
+      pauseAll: false,
+      blocking: {}
     }, function (type) {
     if (type.pauseAll)
     {
       // don't run is pauseAll is set
       return;
     }
-    console.log(type.imgType);
     selected = type.imgType;
-    console.log(type);
     // set image type to use for replacement
     folder = imageTypesList[imageTypes[selected]].folder;
     imgList = imageTypesList[imageTypes[selected]].imgList;
@@ -69,14 +69,12 @@ function run()
     var url = getWebsite(window.location.href);
     // get blocking status from storage
     chrome.storage.sync.get({
+      pauseAll: false,
       blocking: {},
     }, function (item) {
       var blockList = item.blocking;
-      console.log(Object.keys(blockList));
       // if url in list of pages with blocking then pause (don't run)
-      console.log("url: "+url);
       var hashed = getHash(url);
-      console.log("hashed: "+hashed);
       if (hashed in blockList)
       {
         paused = true;
@@ -85,7 +83,6 @@ function run()
       {
         paused = false;
         findTrumps();
-        console.log("paused: "+paused);
       }
     });
   });
@@ -104,16 +101,9 @@ function getWebsite(url)
 /* returns a SHA1 hash of given url string */
 function getHash(url)
 {
-  //var scriptUrl = chrome.extension.getURL("/hashes.js");
-  //$.getScript("hashes.js", function(){
-    console.log("before");
-    // require the module
-    //var Hashes = require('jshashes');
     // new SHA1 instance and base64 string encoding
     var SHA1 = new Hashes.SHA1().b64(url);
     // output to console
-    console.log('SHA1: ' + SHA1);
-    console.log("after");
     return SHA1;
   //});
 }
@@ -583,25 +573,37 @@ function replaceLinkContext(i)
   var parent = $(clickedEl).closest();
   if (parent.css('background-image'))
   {
-    // TODO replace
+    // TODO replace bg image
     console.log("has parent with bg image");
-    return;
+    replaceBGImage(children[j]);
   }
-  // TODO check child for background image
-  var children = $(clickedEl).children();
-  if (children.css('background-image'))
-  {
-    // TODO replace
-    console.log("has >= 1 child with bg image");
-    return;
-  }
-  console.log("No image to replace.");
+  // check child for background image
+  //var children = $(clickedEl).children();
+  var children = clickedEl.querySelectorAll('background-image');
+  //if (children.css('background-image'))
+  //{
+    // find children with bg images
+    for (var j = children.length - 1; j >= 0; j--)
+    {
+      console.log(children[j]);
+      if (children[j].style.backgroundImage)
+      {
+        // replace background-image
+        replaceBGImage(children[j]);
+      }
+    }
+}
+
+/*TODO*/
+function replaceBGImage(element)
+{
+  //TODO
+  console.log("replacing bg image");
 }
 
 /* Returns element's background image to original source using old-source tag (if element has been marked as changed) */
 function revertLink(i)
 {
-  console.log("REVERT LINK TODO");
   // chekc if image has been replaced yet
   if (clickedEl.getAttribute('old-source') === "" || clickedEl.getAttribute('old-source') == 'none' || !clickedEl.getAttribute("old-source"))
   {
@@ -629,6 +631,12 @@ function findReplaceChildImage(info)
       // replace src attributes in image
       findReplaceSRC(children[i]);
     }
+  }
+  addJQ();
+  // use find as well
+  var found = $(clickedEl).find('img');
+  for (var j = found.length - 1; j >= 0; j--) {
+    findReplaceSRC(found[j]);
   }
 }
 
@@ -684,10 +692,15 @@ function findRevertChildImage(info)
     // if child is an image
     if (children[i].tagName == "IMG")
     {
-      // TODO revert image
-      console.log("TODO revert img");
+      // revert image
       revertGivenImage(children[i]);
     }
+  }
+  addJQ();
+  // use find as well
+  var found = $(clickedEl).find('img');
+  for (var j = found.length - 1; j >= 0; j--) {
+    revertGivenImage(found[j]);
   }
 }
 
@@ -723,15 +736,12 @@ chrome.extension.onMessage.addListener(function (message, sender, callback) {
   else if (message.functiontoInvoke == "changeImageType")
   {
     var type = message.imgType;
-    console.log(type);
-    console.log(imageTypes[type]);
     //folder = imageTypesList[imageTypes[message.imgType]].folder;
     //imgList = imageTypesList[imageTypes[message.imgType]].imgList;
   }
   // keyboard shortcut replace message handler
   else if (message.functiontoInvoke == "runCode")
   {
-    console.log(message.info);
     if (message.info == "replace-trumps")
     {
       run();
@@ -851,10 +861,8 @@ document.getElementsByTagName('head')[0].appendChild(textnode2);
 /* Storage/Options (page and popup) Code */
 chrome.storage.onChanged.addListener(function(changes, namespace) {
   for (var key in changes) {
-    console.log(key);
     if (key == 'imgType')
     {
-      console.log('here');
       var storageChange = changes[key];
       folder = imageTypesList[imageTypes[storageChange.newValue]].folder;
       imgList = imageTypesList[imageTypes[storageChange.newValue]].imgList;
@@ -867,8 +875,6 @@ chrome.storage.onChanged.addListener(function(changes, namespace) {
     }
     else if (key == 'blocking')
     {
-      console.log("blocking triggered");
-      console.log(changes[key]);
       // determine if pausing has been stated or stopped for given page and act accordingly
       if (Object.keys(changes[key].newValue).length > Object.keys(changes[key].oldValue).length)
       {
@@ -878,9 +884,9 @@ chrome.storage.onChanged.addListener(function(changes, namespace) {
           hashedAddr = Object.keys(changes[key].newValue)[i];
           if (!(hashedAddr in Object.keys(changes[key].oldValue)))
           {
-            // TODO get current address
+            // get current address
             var url = getWebsite(window.location.href);
-            // TODO hash address
+            // hash address
             var hashedCurrent = getHash(url);
             // reload page if current address is one added to blocking list
             if (hashedCurrent == hashedAddr)

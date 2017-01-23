@@ -182,7 +182,11 @@ document.addEventListener('DOMContentLoaded', function () {
     url = hashURL(urlNaked);
   
     // restore settings for this page
-    chrome.storage.sync.get(function(item) {
+    chrome.storage.sync.get({
+      imgType: 'BO',
+      pauseAll: false,
+      blocking: {}
+    }, function(item) {
       // check for global pause to blocking
       if (item.pauseAll)
       {

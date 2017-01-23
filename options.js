@@ -39,13 +39,13 @@ function restore_options() {
 	}
   });
   // add image srcs and listeners
-  document.getElementById('BO_IMG').src = chrome.extension.getURL("/images/bo_images/Bo_1/1x1.jpg");
+  document.getElementById('BO_IMG').src = chrome.extension.getURL("/images/bo_images_low/Bo_1/1x1.jpg");
   document.getElementById('BO_IMG').addEventListener('click', change_radio_bo);
 
-  document.getElementById('FLAG_IMG').src = chrome.extension.getURL("/images/flag_images/flag_01/1x1.jpg");
+  document.getElementById('FLAG_IMG').src = chrome.extension.getURL("/images/flag_images_low/flag_01/1x1.jpg");
   document.getElementById('FLAG_IMG').addEventListener('click', change_radio_flag);
 
-  document.getElementById('TROMP_IMG').src = chrome.extension.getURL("/images/trompet_images/trompet_1/1x1.jpg");
+  document.getElementById('TROMP_IMG').src = chrome.extension.getURL("/images/trompet_images_low/trompet_1/1x1.jpg");
   document.getElementById('TROMP_IMG').addEventListener('click', change_radio_tromp);
 }
 
