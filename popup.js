@@ -58,10 +58,13 @@ function hashURL(url)
   //});
 }
 
+/* adds current site to pause list in storage, updates popup options */
 function pause() {
   // get old blocking list
   var blockList;
-  chrome.storage.sync.get("blocking", function(item) {
+  chrome.storage.sync.get({
+    "blocking": {},
+  }, function(item) {
     blockList = item.blocking;
   
     // get current page url
@@ -90,11 +93,13 @@ function pause() {
   });
 }
 
-/*TODO*/
+/* remove current site to pause list in storage, updates popup options */
 function start() {
   // get old blocking list
   var blockList;
-  chrome.storage.sync.get("blocking", function(item) {
+  chrome.storage.sync.get({
+    "blocking": {},
+  }, function(item) {
     blockList = item.blocking;
   
     // get current page url

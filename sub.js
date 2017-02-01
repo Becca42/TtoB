@@ -876,6 +876,15 @@ chrome.storage.onChanged.addListener(function(changes, namespace) {
     else if (key == 'blocking')
     {
       // determine if pausing has been stated or stopped for given page and act accordingly
+      // check if oldvalue exists (new installs)
+      try
+      {
+        Object.keys(changes[key].oldValue);
+      }
+      catch(err)
+      {
+        location.reload();
+      }
       if (Object.keys(changes[key].newValue).length > Object.keys(changes[key].oldValue).length)
       {
         console.log("pause");
